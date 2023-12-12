@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// User entity
+model Users {
+  id               Int              @id @default(autoincrement())
+  name             String
+  email            String           @unique
+  phone            String           @unique
+  role             String           @unique
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userAttributes   UserAttributes[]
+  sentMessages     Messages[]       @relation("Senders")
+  receivedMessages Messages[]       @relation("Receivers")
+}
+
+model UserAttributes {
+  id       Int     @id @default(autoincrement())
+  source   String?
+  comments String?
+  userId   Int
+  user     Users   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+// Conversation entity
+model Conversations {
+  id          Int        @id @default(autoincrement())
+  subject     String
+  startTime   DateTime
+  endTime     DateTime
+  isCompleted Boolean
+  messages    Messages[]
+}
+
+model Messages {
+  id             Int           @id @default(autoincrement())
+  conversationId Int
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  senderId       Int
+  sender         Users         @relation("Senders", fields: [senderId], references: [id])
+  receiverId     Int
+  receiver       Users         @relation("Receivers", fields: [receiverId], references: [id])
+  content        String
+  sentAt         DateTime      @default(now())
+
+  @@index([senderId, receiverId])
+}
