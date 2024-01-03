@@ -11,50 +11,800 @@ datasource db {
   relationMode = "prisma"
 }
 
-// User entity
-model Users {
-  id               Int              @id @default(autoincrement())
-  name             String
-  email            String           @unique
-  phone            String           @unique
-  role             String           @unique
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  userAttributes   UserAttributes[]
-  sentMessages     Messages[]       @relation("Senders")
-  receivedMessages Messages[]       @relation("Receivers")
+model Therapists {
+  id                     String                  @id @default(uuid())
+  name                   String?
+  email                  String?                 @unique
+  phone                  String?                 @unique
+  referredBy             String?
+  clerkUserId            String?                 @unique
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  referralSourcePlatform ReferralSourcePlatform?
+  yearsOfExperience      YearsOfExperience?
+  location               String?
+  role                   TherapistInternalRole?
+  seeker                 Seekers[]
+  CalenderEvents         CalenderEvents[]
+  TherapySessions        TherapySessions[]
+
+  @@index([clerkUserId])
 }
 
-model UserAttributes {
-  id       Int     @id @default(autoincrement())
-  source   String?
-  comments String?
-  userId   Int
-  user     Users   @relation(fields: [userId], references: [id])
+model Seekers {
+  id                         String                   @id @default(uuid())
+  referredBy                 String?
+  referralSourcePlatform     ReferralSourcePlatform?
+  initialCommentsByTherapist String
+  location                   String?
+  therapistId                String?
+  therapist                  Therapists?              @relation(fields: [therapistId], references: [id])
+  TherapySessions            TherapySessions[]
+  SeekerAttributes           SeekerAttributes?
+  SeekerProgress             SeekerProgress[]
+  IntakeInformation          IntakeInformation?
+  BasicDemographicDetails    BasicDemographicDetails?
+  EmergencyContact           EmergencyContact?
+  PresentingProblem          PresentingProblem?
+  PreMorbidPersonality       PreMorbidPersonality?
+  PastHistory                PastHistory?
+  PersonalHistory            PersonalHistory?
+  SexualHistory              SexualHistory?
+  Substances                 Substances?
+  FamilyHistory              FamilyHistory?
+  PeersAndSocialHistory      PeersAndSocialHistory?
+  WorkAndCareer              WorkAndCareer?
+  ProvisionalDiagnosis       ProvisionalDiagnosis?
+  DifferentialDiagnosis      DifferentialDiagnosis?
+  MentalStatusExamination    MentalStatusExamination?
 
-  @@index([userId])
+  @@index([therapistId])
 }
 
-// Conversation entity
-model Conversations {
-  id          Int        @id @default(autoincrement())
-  subject     String
-  startTime   DateTime
-  endTime     DateTime
-  isCompleted Boolean
-  messages    Messages[]
+model SeekerAttributes {
+  id                     String         @id @default(uuid())
+  cohortType             CohortType?
+  stage                  String?
+  numberOfSessionsDone   Int?
+  nextSessionScheduled   Int?
+  preferredDayAndTime    DateTime?
+  modeOfSession          ModeOfSession?
+  lastSessionPaymentDone Int?
+  problemType            problemType?
+  isActive               IsActive?
+  seekerId               String         @unique
+  seeker                 Seekers        @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
 }
 
-model Messages {
-  id             Int           @id @default(autoincrement())
-  conversationId Int
-  conversation   Conversations @relation(fields: [conversationId], references: [id])
-  senderId       Int
-  sender         Users         @relation("Senders", fields: [senderId], references: [id])
-  receiverId     Int
-  receiver       Users         @relation("Receivers", fields: [receiverId], references: [id])
-  content        String
-  sentAt         DateTime      @default(now())
+model CalenderEvents {
+  id             String     @id @default(uuid())
+  title          String
+  description    String
+  label          String
+  startTimestamp DateTime
+  endTimestamp   DateTime
+  location       String
+  therapistId    String
+  therapist      Therapists @relation(fields: [therapistId], references: [id])
 
-  @@index([senderId, receiverId])
+  @@index([therapistId])
+}
+
+model TherapySessions {
+  id             String     @id @default(uuid())
+  startTimestamp DateTime
+  endTimestamp   DateTime
+  location       String
+  therapistId    String
+  seekerId       String
+  seeker         Seekers    @relation(fields: [seekerId], references: [id])
+  therapist      Therapists @relation(fields: [therapistId], references: [id])
+
+  @@index([therapistId])
+  @@index([seekerId])
+}
+
+model SeekerProgress {
+  id                     String                   @id @default(uuid())
+  progressSubject        String
+  progressBody           String
+  createdAt              DateTime                 @default(now())
+  seekerId               String
+  seeker                 Seekers                  @relation(fields: [seekerId], references: [id])
+  SeekerProgressComments SeekerProgressComments[]
+
+  @@index([seekerId])
+}
+
+model SeekerProgressComments {
+  id               String         @id @default(uuid())
+  subComment       String
+  seekerProgressId String
+  seekerProgress   SeekerProgress @relation(fields: [seekerProgressId], references: [id])
+
+  @@index([seekerProgressId])
+}
+
+model IntakeInformation {
+  id                      String                   @id @default(uuid())
+  name                    String?
+  statusOfInformedConsent StatusOfInformedConsent?
+  timestampOfIntake       DateTime?
+  currentFees             Int?
+  slidingScale            Float?
+  mediumOfTherapy         MediumOfTherapy?
+  reference               String?
+  intakeClinician         String?
+  keyTherapist            String?
+  psychiatrist            String?
+  seekerId                String                   @unique
+  seeker                  Seekers                  @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model BasicDemographicDetails {
+  id                 String              @id @default(uuid())
+  age                Int?
+  dateOfBirth        DateTime?
+  sexAssignedAtBirth SexAssignedAtBirth?
+  identifiedGender   String?
+  preferredPronoun   String?
+  currentAddress     String?
+  permanentAddress   String?
+  contactNumber      String?
+  email              String?
+  occupation         String?
+  relationshipStatus String?
+  religion           String?
+  caste              Caste?
+  seekerId           String              @unique
+  seeker             Seekers             @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model EmergencyContact {
+  id           String  @id @default(uuid())
+  name         String?
+  relationship String?
+  proximity    String?
+  contact      String?
+  seekerId     String  @unique
+  seeker       Seekers @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model PresentingProblem {
+  id                      String                   @id @default(uuid())
+  seekerId                String                   @unique
+  seeker                  Seekers                  @relation(fields: [seekerId], references: [id])
+  EpisodicDocumentation   EpisodicDocumentation?
+  HistoryOfPresentProblem HistoryOfPresentProblem?
+
+  @@index([seekerId])
+}
+
+model EpisodicDocumentation {
+  id                  String            @id @default(uuid())
+  timestamp           DateTime?
+  verbatim            String?
+  onset               Onset?
+  duration            Duration?
+  course              Course?
+  yourComments        String?
+  presentingProblemId String            @unique
+  presentingProblem   PresentingProblem @relation(fields: [presentingProblemId], references: [id])
+
+  @@index([presentingProblemId])
+}
+
+model HistoryOfPresentProblem {
+  id                   String            @id @default(uuid())
+  timestamp            DateTime?
+  keySymptoms          String?
+  precipitatingFactors String?
+  predisposingFactors  String?
+  perpetuatingFactors  String?
+  protectiveFactors    String?
+  summary              String?
+  presentingProblemId  String            @unique
+  presentingProblem    PresentingProblem @relation(fields: [presentingProblemId], references: [id])
+
+  @@index([presentingProblemId])
+}
+
+model PreMorbidPersonality {
+  id                   String                 @id @default(uuid())
+  opennessToExperience PersonalityTraitLevel?
+  conscientiousness    PersonalityTraitLevel?
+  extraversion         PersonalityTraitLevel?
+  agreeableness        PersonalityTraitLevel?
+  neuroticism          PersonalityTraitLevel?
+  introversion         PersonalityTraitLevel?
+  noveltySeeking       PersonalityTraitLevel?
+  impulsiveness        PersonalityTraitLevel?
+  perfectionism        PersonalityTraitLevel?
+  humour               PersonalityTraitLevel?
+  assertiveness        PersonalityTraitLevel?
+  empathy              PersonalityTraitLevel?
+  autonomy             PersonalityTraitLevel?
+  adaptivity           PersonalityTraitLevel?
+  altruism             PersonalityTraitLevel?
+  resilience           PersonalityTraitLevel?
+  patience             PersonalityTraitLevel?
+  curiosity            PersonalityTraitLevel?
+  creativity           PersonalityTraitLevel?
+  defiance             PersonalityTraitLevel?
+  seekerId             String                 @unique
+  seeker               Seekers                @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model PastHistory {
+  id                 String              @id @default(uuid())
+  yourComments       String?
+  seekerId           String              @unique
+  seeker             Seekers             @relation(fields: [seekerId], references: [id])
+  MedicalHistory     MedicalHistory?
+  PsychiatricHistory PsychiatricHistory?
+
+  @@index([seekerId])
+}
+
+model MedicalHistory {
+  id                          String      @id @default(uuid())
+  chronicIllnesses            String?
+  surgeries                   String?
+  accidents                   String?
+  traumas                     String?
+  acuteNeurologicalConditions String?
+  majorInfectiousDiseases     String?
+  yourComments                String?
+  pastHistoryId               String      @unique
+  pastHistory                 PastHistory @relation(fields: [pastHistoryId], references: [id])
+
+  @@index([pastHistoryId])
+}
+
+model PsychiatricHistory {
+  id            String      @id @default(uuid())
+  yourComments  String?
+  pastHistoryId String      @unique
+  pastHistory   PastHistory @relation(fields: [pastHistoryId], references: [id])
+  Therapy       Therapy?
+  Psychiatry    Psychiatry?
+
+  @@index([pastHistoryId])
+}
+
+model Therapy {
+  id                          String             @id @default(uuid())
+  taken                       TherapyTaken?
+  purpose                     String?
+  duration                    String?
+  outcome                     String?
+  reasonForLeaving            String?
+  factorsWhichHelpedInTherapy String?
+  psychiatricHistoryId        String             @unique
+  psychiatricHistory          PsychiatricHistory @relation(fields: [psychiatricHistoryId], references: [id])
+
+  @@index([psychiatricHistoryId])
+}
+
+model Psychiatry {
+  id                          String             @id @default(uuid())
+  taken                       PsychiatryTaken?
+  purpose                     String?
+  duration                    String?
+  outcome                     String?
+  reasonForLeaving            String?
+  factorsWhichHelpedInTherapy String?
+  psychiatricHistoryId        String             @unique
+  psychiatricHistory          PsychiatricHistory @relation(fields: [psychiatricHistoryId], references: [id])
+
+  @@index([psychiatricHistoryId])
+}
+
+model PersonalHistory {
+  id           String      @id @default(uuid())
+  yourComments String?
+  seekerId     String      @unique
+  seeker       Seekers     @relation(fields: [seekerId], references: [id])
+  perinatal    Perinatal?
+  childhood    Childhood?
+  adolescent   Adolescent?
+  adulthood    Adulthood?
+  oldAge       OldAge?
+
+  @@index([seekerId])
+}
+
+model Perinatal {
+  id                      String                   @id @default(uuid())
+  birthComplications      BirthComplications?
+  developmentalMilestones DevelopmentalMilestones?
+  personalHistoryId       String                   @unique
+  personalHistory         PersonalHistory          @relation(fields: [personalHistoryId], references: [id])
+
+  @@index([personalHistoryId])
+}
+
+model Childhood {
+  id                               String                            @id @default(uuid())
+  academicAndScholasticDevelopment AcademicAndScholasticDevelopment?
+  behaviouralPatterns              BehaviouralPatterns?
+  personalHistoryId                String                            @unique
+  personalHistory                  PersonalHistory                   @relation(fields: [personalHistoryId], references: [id])
+
+  @@index([personalHistoryId])
+}
+
+model Adolescent {
+  id                    String                 @id @default(uuid())
+  majorEvents           String?
+  choosingCareerStream  ChoosingCareerStream?
+  identityRoleConfusion IdentityRoleConfusion?
+  romanticEndeavours    RomanticEndeavours?
+  familyEnvironment     FamilyEnvironment?
+  emotionalIssues       EmotionalIssues?
+  personalHistoryId     String                 @unique
+  personalHistory       PersonalHistory        @relation(fields: [personalHistoryId], references: [id])
+
+  @@index([personalHistoryId])
+}
+
+model Adulthood {
+  id                String          @id @default(uuid())
+  copingResources   String?
+  personalHistoryId String          @unique
+  personalHistory   PersonalHistory @relation(fields: [personalHistoryId], references: [id])
+  KeyLifeEvents     KeyLifeEvents?
+
+  @@index([personalHistoryId])
+}
+
+model KeyLifeEvents {
+  id                     String                  @id @default(uuid())
+  education              Education?
+  job                    Job?
+  marriage               Marriage?
+  childbirth             ChildBirth?
+  financialStability     FinancialStability?
+  familyResponsibilities FamilyResponsibilities?
+  adulthoodId            String                  @unique
+  adulthood              Adulthood               @relation(fields: [adulthoodId], references: [id])
+
+  @@index([adulthoodId])
+}
+
+model OldAge {
+  id                    String          @id @default(uuid())
+  transitionToOldAge    String?
+  adjustmentAndStresses String?
+  emotionalCoping       String?
+  personalHistoryId     String          @unique
+  personalHistory       PersonalHistory @relation(fields: [personalHistoryId], references: [id])
+
+  @@index([personalHistoryId])
+}
+
+model SexualHistory {
+  id                             String                    @id @default(uuid())
+  onsetOfPuberty                 DateTime?
+  sexualIdentity                 SexualIdentity?
+  genderIdentity                 GenderIdentity?
+  firstSelfExplorationExperience String?
+  firstSexualExperience          String?
+  arousalAndOrgasmicFantasy      String?
+  sexualDesires                  String?
+  currentSexualFunctioning       CurrentSexualFunctioning?
+  sexualAbuse                    String?
+  seekerId                       String                    @unique
+  seeker                         Seekers                   @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model Substances {
+  id                       String                   @id @default(uuid())
+  introductionToSubstances DateTime?
+  substancesUsed           SubstancesUsed?
+  frequency                SubstanceUsageFrequency?
+  quantity                 String?
+  reason                   String?
+  seekerId                 String                   @unique
+  seeker                   Seekers                  @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model FamilyHistory {
+  id                          String           @id @default(uuid())
+  familyStructure             FamilyStructure?
+  genogram                    String?
+  sourcesOfStress             String?
+  sourcesOfSupport            String?
+  mentalHealthHistoryInFamily String?
+  seekerId                    String           @unique
+  seeker                      Seekers          @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model PeersAndSocialHistory {
+  id                         String  @id @default(uuid())
+  friendships                String?
+  relationshipWithPeers      String?
+  relationshipWithColleagues String?
+  seekerId                   String  @unique
+  seeker                     Seekers @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model WorkAndCareer {
+  id               String  @id @default(uuid())
+  natureOfWork     String?
+  changesInSchool  String?
+  changesInCollege String?
+  changesInJob     String?
+  reasonsForChange String?
+  sourcesOfStress  String?
+  sourcesOfSupport String?
+  seekerId         String  @unique
+  seeker           Seekers @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model ProvisionalDiagnosis {
+  id                   String  @id @default(uuid())
+  provisionalDiagnosis String?
+  seekerId             String  @unique
+  seeker               Seekers @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model DifferentialDiagnosis {
+  id                    String  @id @default(uuid())
+  differentialDiagnosis String?
+  seekerId              String  @unique
+  seeker                Seekers @relation(fields: [seekerId], references: [id])
+
+  @@index([seekerId])
+}
+
+model MentalStatusExamination {
+  id                        String             @id @default(uuid())
+  timestamp                 DateTime?
+  attentionAndConcentration String?
+  moodAndEffect             String?
+  levelOfInsight            String?
+  yourComments              String?
+  seekerId                  String             @unique
+  seeker                    Seekers            @relation(fields: [seekerId], references: [id])
+  generalAppearance         GeneralAppearance?
+  thoughts                  Thoughts?
+  cognition                 Cognition?
+
+  @@index([seekerId])
+}
+
+model GeneralAppearance {
+  id                        String                  @id @default(uuid())
+  grooming                  String?
+  speech                    String?
+  bodyMovements             String?
+  postures                  String?
+  eyeContact                String?
+  mentalStatusExaminationId String                  @unique
+  mentalStatusExamination   MentalStatusExamination @relation(fields: [mentalStatusExaminationId], references: [id])
+
+  @@index([mentalStatusExaminationId])
+}
+
+model Thoughts {
+  id                        String                  @id @default(uuid())
+  content                   String?
+  process                   String?
+  mentalStatusExaminationId String                  @unique
+  mentalStatusExamination   MentalStatusExamination @relation(fields: [mentalStatusExaminationId], references: [id])
+
+  @@index([mentalStatusExaminationId])
+}
+
+model Cognition {
+  id                        String                  @id @default(uuid())
+  judgement                 String?
+  mentalStatusExaminationId String                  @unique
+  mentalStatusExamination   MentalStatusExamination @relation(fields: [mentalStatusExaminationId], references: [id])
+  orientation               Orientation?
+  memory                    Memory?
+
+  @@index([mentalStatusExaminationId])
+}
+
+model Orientation {
+  id          String    @id @default(uuid())
+  time        DateTime?
+  place       String?
+  person      String?
+  cognitionId String    @unique
+  cognition   Cognition @relation(fields: [cognitionId], references: [id])
+
+  @@index([cognitionId])
+}
+
+model Memory {
+  id          String    @id @default(uuid())
+  working     String?
+  shortTerm   String?
+  longTerm    String?
+  cognitionId String    @unique
+  cognition   Cognition @relation(fields: [cognitionId], references: [id])
+
+  @@index([cognitionId])
+}
+
+enum TherapistInternalRole {
+  Clinical
+  Associate
+}
+
+enum ReferralSourcePlatform {
+  Facebook
+  Whatsapp
+  Twitter
+  Discord
+}
+
+enum YearsOfExperience {
+  OneToThree
+  FourToSix
+  SevenToTen
+  MoreThanTen
+}
+
+enum CohortType {
+  Active
+  WasActive
+  Waitlist
+}
+
+enum ModeOfSession {
+  Online
+  Offline
+}
+
+enum StatusOfInformedConsent {
+  Yes
+  No
+}
+
+enum MediumOfTherapy {
+  Online
+  Offline
+  Hybrid
+}
+
+enum SexAssignedAtBirth {
+  Male
+  Female
+  InterSex
+}
+
+enum Caste {
+  General
+  OBC
+  SC
+  ST
+  NT
+}
+
+enum Onset {
+  Abrupt
+  Acute
+  Insidious
+}
+
+enum Duration {
+  LessThanFourtyEightHours
+  LessThanTwoWeeks
+  TwoWeeksToThreeMonths
+  ThreeMonthsToSixMonths
+  SixMonthsToTwelveMonths
+  MoreThanTwelveMonths
+}
+
+enum Course {
+  Continuous
+  Deteriorating
+  Static
+  Episodic
+  InRemission
+  InRecovery
+  InRelapse
+}
+
+enum PersonalityTraitLevel {
+  High
+  Moderate
+  Low
+  Empty
+}
+
+enum TherapyTaken {
+  yes
+  no
+}
+
+enum PsychiatryTaken {
+  yes
+  no
+}
+
+enum BirthComplications {
+  Anoxia
+  Hypoxia
+  PreTermDelivery
+  DelayedCrying
+  ForcepsSuctionDelivery
+  LowBirthWeight
+  RequiredNICUCare
+}
+
+enum DevelopmentalMilestones {
+  Normal
+  DelayedSensoryMS
+  DelayedMotorMS
+  DelayedSpeechMS
+  DelayedSocialMS
+}
+
+enum AcademicAndScholasticDevelopment {
+  ReadingDifficulty
+  WritingDifficulty
+  NumericalDifficulty
+}
+
+enum BehaviouralPatterns {
+  DeficitsInSocializing
+  SeparationAnxiety
+  AttentionProblems
+  Hyperactivity
+  Defiance
+}
+
+enum ChoosingCareerStream {
+  Clear
+  Confused
+  NeverThought
+}
+
+enum IdentityRoleConfusion {
+  Present
+  Absent
+}
+
+enum RomanticEndeavours {
+  Initiated
+  Problematic
+  NotInitiated
+}
+
+enum FamilyEnvironment {
+  Supportive
+  Unsupportive
+  Critical
+}
+
+enum EmotionalIssues {
+  Breakdowns
+  Loneliness
+  NoIssues
+}
+
+enum Education {
+  InProgress
+  Complete
+}
+
+enum Job {
+  Satisfied
+  Unsatisfied
+}
+
+enum Marriage {
+  NotInterested
+  Satisfied
+  Unsatisfied
+  DifficultiesFindingPartner
+}
+
+enum ChildBirth {
+  ChoosesNotToHave
+  DifficultyInConceiving
+  PostPartum
+  Satisfied
+}
+
+enum FinancialStability {
+  NotSettled
+  InProcess
+  WellSettled
+}
+
+enum FamilyResponsibilities {
+  IllnessCaregiving
+  FinancialLiabilities
+  Household
+}
+
+enum SexualIdentity {
+  Heterosexual
+  Homosexual
+  Bisexual
+  Pansexual
+  Asexual
+  Demisexual
+  Aromantic
+}
+
+enum GenderIdentity {
+  Male
+  Female
+  TransMan
+  TransFemale
+  NonBinary
+  Queer
+  GenderFluid
+  Other
+}
+
+enum CurrentSexualFunctioning {
+  Satisfied
+  Unsatisfied
+}
+
+enum SubstancesUsed {
+  Alcohol
+  Cannabis
+  Stimulant
+  Opioid
+  SedativeHypnoticAnxiolytic
+  Tobacco
+  Hallucinogen
+  Caffeine
+}
+
+enum SubstanceUsageFrequency {
+  EveryDay
+  EveryWeek
+  OnceAMonth
+}
+
+enum FamilyStructure {
+  Nuclear
+  Joint
+  Extended
+  SingleParent
+  Blended
+  Stepfamily
+}
+
+enum IsActive {
+  Yes
+  No
+}
+
+enum problemType {
+  Anxiety
+  Stress
+  RelationshipIssues
 }
