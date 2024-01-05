@@ -128,19 +128,19 @@ model SeekerProgressComments {
 }
 
 model IntakeInformation {
-  id                      String                   @id @default(uuid())
+  id                      String    @id @default(uuid())
   name                    String?
-  statusOfInformedConsent StatusOfInformedConsent?
+  statusOfInformedConsent String?
   timestampOfIntake       DateTime?
-  currentFees             Int?
-  slidingScale            Float?
-  mediumOfTherapy         MediumOfTherapy?
+  currentFees             String?
+  slidingScale            String?
+  mediumOfTherapy         String?
   reference               String?
   intakeClinician         String?
   keyTherapist            String?
   psychiatrist            String?
-  seekerId                String                   @unique
-  seeker                  Seekers                  @relation(fields: [seekerId], references: [id])
+  seekerId                String    @unique
+  seeker                  Seekers   @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
@@ -159,7 +159,7 @@ model BasicDemographicDetails {
   occupation         String?
   relationshipStatus String?
   religion           String?
-  caste              Caste?
+  caste              String?
   seekerId           String              @unique
   seeker             Seekers             @relation(fields: [seekerId], references: [id])
 
@@ -192,9 +192,9 @@ model EpisodicDocumentation {
   id                  String            @id @default(uuid())
   timestamp           DateTime?
   verbatim            String?
-  onset               Onset?
-  duration            Duration?
-  course              Course?
+  onset               String?
+  duration            String?
+  course              String?
   yourComments        String?
   presentingProblemId String            @unique
   presentingProblem   PresentingProblem @relation(fields: [presentingProblemId], references: [id])
@@ -218,29 +218,29 @@ model HistoryOfPresentProblem {
 }
 
 model PreMorbidPersonality {
-  id                   String                 @id @default(uuid())
-  opennessToExperience PersonalityTraitLevel?
-  conscientiousness    PersonalityTraitLevel?
-  extraversion         PersonalityTraitLevel?
-  agreeableness        PersonalityTraitLevel?
-  neuroticism          PersonalityTraitLevel?
-  introversion         PersonalityTraitLevel?
-  noveltySeeking       PersonalityTraitLevel?
-  impulsiveness        PersonalityTraitLevel?
-  perfectionism        PersonalityTraitLevel?
-  humour               PersonalityTraitLevel?
-  assertiveness        PersonalityTraitLevel?
-  empathy              PersonalityTraitLevel?
-  autonomy             PersonalityTraitLevel?
-  adaptivity           PersonalityTraitLevel?
-  altruism             PersonalityTraitLevel?
-  resilience           PersonalityTraitLevel?
-  patience             PersonalityTraitLevel?
-  curiosity            PersonalityTraitLevel?
-  creativity           PersonalityTraitLevel?
-  defiance             PersonalityTraitLevel?
-  seekerId             String                 @unique
-  seeker               Seekers                @relation(fields: [seekerId], references: [id])
+  id                   String  @id @default(uuid())
+  opennessToExperience String?
+  conscientiousness    String?
+  extraversion         String?
+  agreeableness        String?
+  neuroticism          String?
+  introversion         String?
+  noveltySeeking       String?
+  impulsiveness        String?
+  perfectionism        String?
+  humour               String?
+  assertiveness        String?
+  empathy              String?
+  autonomy             String?
+  adaptivity           String?
+  altruism             String?
+  resilience           String?
+  patience             String?
+  curiosity            String?
+  creativity           String?
+  defiance             String?
+  seekerId             String  @unique
+  seeker               Seekers @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
@@ -311,15 +311,20 @@ model Psychiatry {
 }
 
 model PersonalHistory {
-  id           String      @id @default(uuid())
-  yourComments String?
-  seekerId     String      @unique
-  seeker       Seekers     @relation(fields: [seekerId], references: [id])
-  perinatal    Perinatal?
-  childhood    Childhood?
-  adolescent   Adolescent?
-  adulthood    Adulthood?
-  oldAge       OldAge?
+  id              String      @id @default(uuid())
+  yourComments    String?
+  seekerId        String      @unique
+  seeker          Seekers     @relation(fields: [seekerId], references: [id])
+  perinatal       String?
+  childhood       String?
+  adolescent      String?
+  adulthood       String?
+  oldAge          String?
+  perinatalTable  Perinatal?
+  childhoodTable  Childhood?
+  adolescentTable Adolescent?
+  adulthoodTable  Adulthood?
+  oldAgeTable     OldAge?
 
   @@index([seekerId])
 }
@@ -394,44 +399,44 @@ model OldAge {
 }
 
 model SexualHistory {
-  id                             String                    @id @default(uuid())
+  id                             String    @id @default(uuid())
   onsetOfPuberty                 DateTime?
-  sexualIdentity                 SexualIdentity?
-  genderIdentity                 GenderIdentity?
+  sexualIdentity                 String?
+  genderIdentity                 String?
   firstSelfExplorationExperience String?
   firstSexualExperience          String?
   arousalAndOrgasmicFantasy      String?
-  sexualDesires                  String?
-  currentSexualFunctioning       CurrentSexualFunctioning?
+  sexualDiseases                 String?
+  currentSexualFunctioning       String?
   sexualAbuse                    String?
-  seekerId                       String                    @unique
-  seeker                         Seekers                   @relation(fields: [seekerId], references: [id])
+  seekerId                       String    @unique
+  seeker                         Seekers   @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
 
 model Substances {
-  id                       String                   @id @default(uuid())
+  id                       String    @id @default(uuid())
   introductionToSubstances DateTime?
-  substancesUsed           SubstancesUsed?
-  frequency                SubstanceUsageFrequency?
+  substancesUsed           String?
+  frequency                String?
   quantity                 String?
   reason                   String?
-  seekerId                 String                   @unique
-  seeker                   Seekers                  @relation(fields: [seekerId], references: [id])
+  seekerId                 String    @unique
+  seeker                   Seekers   @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
 
 model FamilyHistory {
-  id                          String           @id @default(uuid())
-  familyStructure             FamilyStructure?
+  id                          String  @id @default(uuid())
+  familyStructure             String?
   genogram                    String?
   sourcesOfStress             String?
   sourcesOfSupport            String?
   mentalHealthHistoryInFamily String?
-  seekerId                    String           @unique
-  seeker                      Seekers          @relation(fields: [seekerId], references: [id])
+  seekerId                    String  @unique
+  seeker                      Seekers @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
