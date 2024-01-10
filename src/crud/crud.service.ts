@@ -254,6 +254,7 @@ export class CrudService {
     }
 
     async getPresentingProblem(seekerId: string): Promise<any> {
+        console.log('get presenting problem service')
         const presentingProblemData = await this.prisma.presentingProblem.findMany({
             where: { seekerId: seekerId },
             include: {
@@ -1177,7 +1178,6 @@ export class CrudService {
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
-
         // Return the created MentalStatusExamination data
         return mentalStatusExamination;
     }
@@ -1214,24 +1214,28 @@ export class CrudService {
 
 
     async updatePresentingProblem(params: { seekerId: string, seekerData: any }): Promise<any> {
+        // console.log('Raw seeker data')
+        // console.log(params.seekerData)
         const transformedUpdatedData = {
             EpisodicDocumentation: {
-                verbatim: params.seekerData.verbatim,
-                onset: params.seekerData.onset,
-                duration: params.seekerData.duration,
-                yourComments: params.seekerData.yourComments
+                verbatim: params.seekerData?.clientWords ?? null,
+                onset: params.seekerData?.onset ?? null,
+                duration: params.seekerData?.duration ?? null,
+                yourComments: params.seekerData?.yourComments ?? null
             },
             HistoryOfPresentProblem: {
                 timestamp: new Date().toISOString(), // Replace with actual timestamp if available
-                keySymptoms: params.seekerData.keySymptoms,
-                precipitatingFactors: params.seekerData.precipitatingFactors,
-                predisposingFactors: params.seekerData.predisposingFactors,
-                perpetuatingFactors: params.seekerData.perpetuatingFactors,
-                protectiveFactors: params.seekerData.protectiveFactors,
-                summary: params.seekerData.summary
+                keySymptoms: params.seekerData?.keySymptoms ?? null,
+                precipitatingFactors: params.seekerData?.precipitatingFactors ?? null,
+                predisposingFactors: params.seekerData?.predisposingFactors ?? null,
+                perpetuatingFactors: params.seekerData?.perpetuatingFactors ?? null,
+                protectiveFactors: params.seekerData?.protectiveFactors ?? null,
+                // summary: params.seekerData?.summary ?? null
             }
         };
 
+        // console.log('Transformed seeker data')
+        // console.log(transformedUpdatedData)
         const updatedPresentingProblem = await this.prisma.seekers.update({
             where: { id: params.seekerId },
             data: {
@@ -1260,6 +1264,8 @@ export class CrudService {
             }
         });
 
+        // console.log('Updated seeker data')
+        // console.log(updatedPresentingProblem)
         return updatedPresentingProblem;
     }
 

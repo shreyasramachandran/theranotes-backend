@@ -87,6 +87,7 @@ export class CrudController {
 
     @Get('get-presenting-problem/:seekerId')
     getPresentingProblem(@Param('seekerId') seekerId: string): Promise<any> {
+        console.log('get presenting problem controller')
         return this.crudService.getPresentingProblem(seekerId);
     }
 
