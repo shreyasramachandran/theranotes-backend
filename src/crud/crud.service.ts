@@ -213,12 +213,18 @@ export class CrudService {
         });
     }
 
-    async createNewSeeker(data: { therapistId: string, seekerData: any }): Promise<any> {
-        console.log('data logged', data)
+    async createNewSeeker(data: { clerkUserId: string, seekerData: any }): Promise<any> {
+        // Fetch the session to get the associated user
+        const therapist = await this.prisma.therapists.findFirst({
+            where: { clerkUserId: data.clerkUserId }
+        });
+        if (!therapist) {
+            return {}
+        }
         return this.prisma.seekers.create({
             data: {
                 therapist: {
-                    connect: { id: data.therapistId },
+                    connect: { id: therapist.id },
                 },
                 // Add Seeker data
                 referredBy: data.seekerData.referredBy,

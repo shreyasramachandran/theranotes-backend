@@ -67,12 +67,12 @@ export class CrudController {
         return this.crudService.updateExistingTherapist(createData);
     }
 
-    @Post('create-new-seeker/:therapistId')
+    @Post('create-new-seeker/:clerkUserId')
     createNewSeeker(
-        @Param('therapistId') therapistId: string,
+        @Param('clerkUserId') clerkUserId: string,
         @Body() seekerData: any,
     ): Promise<any> {
-        const createData = { seekerData, therapistId };
+        const createData = { seekerData, clerkUserId };
         return this.crudService.createNewSeeker(createData);
     }
 
