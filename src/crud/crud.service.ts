@@ -47,7 +47,7 @@ export class CrudService {
         });
 
         interface InterfaceData {
-            pid: number
+            pid: string
             patientName: string
             sessionsDone: number
             nextSessionScheduled: boolean
@@ -64,17 +64,17 @@ export class CrudService {
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map((item, index) => {
                 return {
-                    pid: parseInt(item.id), // assuming id is convertible to number
+                    pid: item.id, // assuming id is convertible to number
                     patientName: `Patient ${index + 1}`, // Placeholder, as the real name is not in the source
-                    sessionsDone: item.SeekerAttributes.numberOfSessionsDone,
-                    nextSessionScheduled: item.SeekerAttributes.nextSessionScheduled === 1,
+                    sessionsDone: item.SeekerAttributes?.numberOfSessionsDone ?? null,
+                    nextSessionScheduled: item.SeekerAttributes?.nextSessionScheduled === 1 ?? null,
                     fees: 100, // Placeholder value
-                    preferredDayAndTime: item.SeekerAttributes.preferredDayAndTime,
+                    preferredDayAndTime: item.SeekerAttributes?.preferredDayAndTime ?? null,
                     therapist: item.therapistId,
                     contactNo: '123-456-7890', // Placeholder value
-                    problemType: item.SeekerAttributes.problemType,
-                    lastSessionPaymentDone: item.SeekerAttributes.lastSessionPaymentDone === 1,
-                    isActive: item.SeekerAttributes.isActive === 'Yes'
+                    problemType: item.SeekerAttributes?.problemType ?? null,
+                    lastSessionPaymentDone: item.SeekerAttributes?.lastSessionPaymentDone === 1 ?? null,
+                    isActive: item.isActive?.lastSessionPaymentDone === 'Yes' ?? null
                 };
             });
         }
@@ -108,6 +108,8 @@ export class CrudService {
             },
         });
 
+        console.log(seekerDetails)
+
         interface InterfaceData {
             seekerId: string
             name: string
@@ -119,7 +121,7 @@ export class CrudService {
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
                 seekerId: item.id,
-                name: item.IntakeInformation.name,
+                name: item.IntakeInformation?.name ?? null,
                 tag: "Active Cohort",
                 joiningTime: "Dec 2021" // Placeholder, replace with actual logic if available
             }));
@@ -212,6 +214,7 @@ export class CrudService {
     }
 
     async createNewSeeker(data: { therapistId: string, seekerData: any }): Promise<any> {
+        console.log('data logged', data)
         return this.prisma.seekers.create({
             data: {
                 therapist: {
@@ -227,12 +230,15 @@ export class CrudService {
                     create: data.seekerData.seekerAttributes, // Object with seekerAttributes fields
                 },
                 IntakeInformation: {
-                    create: data.seekerData.intakeInformation, // Object with intakeInformation fields
+                    create: data.seekerData.IntakeInformation // Object with intakeInformation fields
                 },
                 BasicDemographicDetails: {
                     create: data.seekerData.basicDemographicDetails, // Object with basicDemographicDetails fields
                 },
             },
+            include: {
+                IntakeInformation: true
+            }
         });
     }
 
@@ -367,17 +373,17 @@ export class CrudService {
         // Transform the data to be sent to frontend
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
-                name: item.IntakeInformation.name,
-                age: item.BasicDemographicDetails.age,
-                dob: item.BasicDemographicDetails.dateOfBirth,
-                preferredPronoun: item.BasicDemographicDetails.preferredPronoun,
-                contactNum: item.BasicDemographicDetails.contactNumber,
-                email: item.BasicDemographicDetails.email,
-                currentAddress: item.BasicDemographicDetails.currentAddress,
-                permanentAddress: item.BasicDemographicDetails.permanentAddress,
-                caste: item.BasicDemographicDetails.caste,
-                religion: item.BasicDemographicDetails.religion,
-                familyType: item.FamilyHistory.familyStructure,
+                name: item.IntakeInformation?.name ?? null,
+                age: item.BasicDemographicDetails?.age ?? null,
+                dob: item.BasicDemographicDetails?.dateOfBirth ?? null,
+                preferredPronoun: item.BasicDemographicDetails?.preferredPronoun ?? null,
+                contactNum: item.BasicDemographicDetails?.contactNumber ?? null,
+                email: item.BasicDemographicDetails?.email ?? null,
+                currentAddress: item.BasicDemographicDetails?.currentAddress ?? null,
+                permanentAddress: item.BasicDemographicDetails?.permanentAddress ?? null,
+                caste: item.BasicDemographicDetails?.caste ?? null,
+                religion: item.BasicDemographicDetails?.religion ?? null,
+                familyType: item.FamilyHistory?.familyStructure ?? null,
                 ethnicity: "Indian",
                 yourComments: "No comments"
             }));
@@ -1265,21 +1271,21 @@ export class CrudService {
     async updateBasicInformation(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             IntakeInformation: {
-                name: params.seekerData.name
+                name: params.seekerData?.name ?? null
             },
             BasicDemographicDetails: {
-                age: params.seekerData.age,
-                dateOfBirth: params.seekerData.dob,
-                preferredPronoun: params.seekerData.preferredPronoun,
-                contactNumber: params.seekerData.contactNum,
-                email: params.seekerData.email,
-                currentAddress: params.seekerData.currentAddress,
-                permanentAddress: params.seekerData.permanentAddress,
-                caste: params.seekerData.caste,
-                religion: params.seekerData.religion
+                age: Number(params.seekerData?.age) ?? null,
+                dateOfBirth: new Date(params.seekerData?.dob).toISOString() ?? null,
+                preferredPronoun: params.seekerData?.preferredPronoun ?? null,
+                contactNumber: params.seekerData?.contactNum ?? null,
+                email: params.seekerData?.email ?? null,
+                currentAddress: params.seekerData?.currentAddress ?? null,
+                permanentAddress: params.seekerData?.permanentAddress ?? null,
+                caste: params.seekerData?.caste ?? null,
+                religion: params.seekerData?.religion ?? null
             },
             FamilyHistory: {
-                familyStructure: params.seekerData.familyStructure,
+                familyStructure: params.seekerData?.familyType ?? null,
             }
         };
 
@@ -1308,6 +1314,8 @@ export class CrudService {
                 FamilyHistory: true
             }
         });
+
+        console.log('transformed data', updatedBasicInformation)
 
         return updatedBasicInformation;
     }
