@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 
 @Injectable()
@@ -1214,8 +1214,6 @@ export class CrudService {
 
 
     async updatePresentingProblem(params: { seekerId: string, seekerData: any }): Promise<any> {
-        // console.log('Raw seeker data')
-        // console.log(params.seekerData)
         const transformedUpdatedData = {
             EpisodicDocumentation: {
                 verbatim: params.seekerData?.clientWords ?? null,
@@ -1234,8 +1232,6 @@ export class CrudService {
             }
         };
 
-        // console.log('Transformed seeker data')
-        // console.log(transformedUpdatedData)
         const updatedPresentingProblem = await this.prisma.seekers.update({
             where: { id: params.seekerId },
             data: {
@@ -1262,10 +1258,7 @@ export class CrudService {
                     }
                 }
             }
-        });
-
-        // console.log('Updated seeker data')
-        // console.log(updatedPresentingProblem)
+        }).catch(err => console.log('Error from planetscale side', err));
         return updatedPresentingProblem;
     }
 
