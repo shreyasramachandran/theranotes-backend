@@ -844,7 +844,10 @@ export class CrudService {
             include: {
                 MentalStatusExamination: {
                     select: {
-                        moodAndEffect: true,
+                        generalAppearance: true,
+                        thoughts: true,
+                        cognition: true,
+                        moodAndAffect: true,
                         attentionAndConcentration: true,
                         levelOfInsight: true,
                         yourComments: true
@@ -855,7 +858,7 @@ export class CrudService {
 
         // Map it as according to how you want it to be rendered on frontend
         interface InterfaceData {
-            moodAndEffect: string
+            moodAndAffect: string
             attentionAndConcentration: string
             levelOfInsight: string
             yourComments: string
@@ -867,12 +870,12 @@ export class CrudService {
         // Transform the data to be sent to frontend
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
-                moodAndEffect: item.MentalStatusExamination.moodAndEffect,
+                moodAndAffect: item.MentalStatusExamination.moodAndAffect,
                 attentionAndConcentration: item.MentalStatusExamination.attentionAndConcentration,
                 levelOfInsight: item.MentalStatusExamination.levelOfInsight,
-                cognition: "cognition",
-                generalAppearance: "general appearance",
-                thoughts: "thoughts",
+                cognition: item.MentalStatusExamination.cognition,
+                generalAppearance: item.MentalStatusExamination.generalAppearance,
+                thoughts: item.MentalStatusExamination.thoughts,
                 yourComments: item.MentalStatusExamination.yourComments
             }));
         }
@@ -1193,7 +1196,7 @@ export class CrudService {
         // Create MentalStatusExamination record
         const mentalStatusExamination = await this.prisma.mentalStatusExamination.create({
             data: {
-                moodAndEffect: params.seekerData.MentalStatusExamination.moodAndEffect,
+                moodAndAffect: params.seekerData.MentalStatusExamination.moodAndAffect,
                 attentionAndConcentration: params.seekerData.MentalStatusExamination.attentionAndConcentration,
                 levelOfInsight: params.seekerData.MentalStatusExamination.levelOfInsight,
                 yourComments: params.seekerData.MentalStatusExamination.yourComments,
@@ -1637,7 +1640,7 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             MentalStatusExamination: {
-                moodAndEffect: params.seekerData?.moodAndEffect ?? null,
+                moodAndAffect: params.seekerData?.moodAndAffect ?? null,
                 attentionAndConcentration: params.seekerData?.attentionAndConcentration ?? null,
                 levelOfInsight: params.seekerData?.levelOfInsight ?? null,
                 cognition: params.seekerData?.cognition ?? null,

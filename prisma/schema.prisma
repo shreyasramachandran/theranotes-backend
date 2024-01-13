@@ -489,14 +489,17 @@ model MentalStatusExamination {
   id                        String             @id @default(uuid())
   timestamp                 DateTime?
   attentionAndConcentration String?
-  moodAndEffect             String?
+  moodAndAffect             String?
   levelOfInsight            String?
   yourComments              String?
+  generalAppearance         String?
+  thoughts                  String?
+  cognition                 String?
+  generalAppearanceTable    GeneralAppearance?
+  thoughtsTable             Thoughts?
+  cognitionTable            Cognition?
   seekerId                  String             @unique
   seeker                    Seekers            @relation(fields: [seekerId], references: [id])
-  generalAppearance         GeneralAppearance?
-  thoughts                  Thoughts?
-  cognition                 Cognition?
 
   @@index([seekerId])
 }
