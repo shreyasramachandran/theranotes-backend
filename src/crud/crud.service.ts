@@ -582,7 +582,7 @@ export class CrudService {
         // Transform the data to be sent to frontend
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
-                "Openness to Expression": item.PreMorbidPersonality.opennessToExperience,
+                "Openness to Expression": item.PreMorbidPersonality?.opennessToExperience,
                 Conscientiousness: item.PreMorbidPersonality.conscientiousness,
                 Extraversion: item.PreMorbidPersonality.extraversion,
                 Agreeableness: item.PreMorbidPersonality.agreeableness,
@@ -607,6 +607,7 @@ export class CrudService {
         }
 
         const transformedData = transformData(data)
+        console.log(transformedData)
         return transformedData;
     }
 
