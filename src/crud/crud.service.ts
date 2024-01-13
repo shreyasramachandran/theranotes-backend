@@ -1640,11 +1640,10 @@ export class CrudService {
                 moodAndEffect: params.seekerData?.moodAndEffect ?? null,
                 attentionAndConcentration: params.seekerData?.attentionAndConcentration ?? null,
                 levelOfInsight: params.seekerData?.levelOfInsight ?? null,
-                yourComments: params.seekerData?.yourComments ?? null,
-                // Add any other fields that are required for update
-                // cognition: params.seekerData.cognition,
-                // generalAppearance: params.seekerData.generalAppearance,
-                // thoughts: params.seekerData.thoughts
+                cognition: params.seekerData?.cognition ?? null,
+                generalAppearance: params.seekerData?.generalAppearance ?? null,
+                thoughts: params.seekerData?.thoughts ?? null,
+                yourComments: params.seekerData?.yourComments ?? null
             }
         };
 
