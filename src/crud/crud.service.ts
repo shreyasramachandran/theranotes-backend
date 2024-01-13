@@ -108,8 +108,6 @@ export class CrudService {
             },
         });
 
-        console.log(seekerDetails)
-
         interface InterfaceData {
             seekerId: string
             name: string
@@ -265,8 +263,13 @@ export class CrudService {
         });
     }
 
+    /*****
+     * 
+     * Get Functions begin here
+     * 
+     *****/
+
     async getPresentingProblem(seekerId: string): Promise<any> {
-        console.log('get presenting problem service')
         const presentingProblemData = await this.prisma.presentingProblem.findMany({
             where: { seekerId: seekerId },
             include: {
@@ -329,7 +332,7 @@ export class CrudService {
         return transformedPresentingProblemData;
     }
 
-    async getBasicInformation(seekerId: string): Promise<any> {
+    async getBasicDemographicDetails(seekerId: string): Promise<any> {
         const data = await this.prisma.seekers.findMany({
             where: { id: seekerId },
             include: {
@@ -427,7 +430,7 @@ export class CrudService {
         // Transform the data to be sent to frontend
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
-                name: item.IntakeInformation.name,
+                name: item.EmergencyContact.name,
                 contactInfo: item.EmergencyContact.contact,
                 proximity: item.EmergencyContact.proximity,
                 relationship: item.EmergencyContact.relationship,
@@ -926,7 +929,7 @@ export class CrudService {
                 reference: item.IntakeInformation.reference,
                 intakeClinician: item.IntakeInformation.intakeClinician,
                 psychiatrist: item.IntakeInformation.psychiatrist,
-                yourComments: item.MentalStatusExamination.yourComments
+                yourComments: item.IntakeInformation.yourComments
             }));
         }
 
@@ -981,47 +984,35 @@ export class CrudService {
         return createdData;
     }
 
-    async createBasicInformation(params: { seekerId: string, seekerData: any }): Promise<any> {
-        // Create IntakeInformation record
-        const intakeInfo = await this.prisma.intakeInformation.create({
-            data: {
-                ...params.seekerData.IntakeInformation,
-                seekerId: params.seekerId
-            }
-        });
-
+    async createBasicDemographicDetails(params: { seekerId: string, seekerData: any }): Promise<any> {
         // Create BasicDemographicDetails record
-        const demographicDetails = await this.prisma.basicDemographicDetails.create({
+        const basicDemographicDetails = await this.prisma.basicDemographicDetails.create({
             data: {
-                ...params.seekerData.BasicDemographicDetails,
-                seekerId: params.seekerId
-            }
-        });
-
-        // Create FamilyHistory record
-        const familyHistory = await this.prisma.familyHistory.create({
-            data: {
-                ...params.seekerData.FamilyHistory,
+                age: params.seekerData.BasicDemographicDetails.age,
+                dateOfBirth: params.seekerData.BasicDemographicDetails.dateOfBirth,
+                preferredPronoun: params.seekerData.BasicDemographicDetails.preferredPronoun,
+                contactNumber: params.seekerData.BasicDemographicDetails.contactNumber,
+                email: params.seekerData.BasicDemographicDetails.email,
+                currentAddress: params.seekerData.BasicDemographicDetails.currentAddress,
+                permanentAddress: params.seekerData.BasicDemographicDetails.permanentAddress,
+                caste: params.seekerData.BasicDemographicDetails.caste,
+                religion: params.seekerData.BasicDemographicDetails.religion,
                 seekerId: params.seekerId
             }
         });
 
         // Return the created data
-        return {
-            IntakeInformation: intakeInfo,
-            BasicDemographicDetails: demographicDetails,
-            FamilyHistory: familyHistory
-        };
+        return basicDemographicDetails
     }
 
     async createEmergencyContact(params: { seekerId: string, seekerData: any }): Promise<any> {
         // Create EmergencyContact record
         const emergencyContact = await this.prisma.emergencyContact.create({
             data: {
-                name: params.seekerData.name,
-                relationship: params.seekerData.relationship,
-                proximity: params.seekerData.proximity,
-                contact: params.seekerData.contact,
+                name: params.seekerData.EmergencyContact.name,
+                relationship: params.seekerData.EmergencyContact.relationship,
+                proximity: params.seekerData.EmergencyContact.proximity,
+                contact: params.seekerData.EmergencyContact.contact,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1035,10 +1026,10 @@ export class CrudService {
         // Create FamilyHistory record
         const familyHistory = await this.prisma.familyHistory.create({
             data: {
-                familyStructure: params.seekerData.familyStructure,
-                sourcesOfStress: params.seekerData.sourcesOfStress,
-                sourcesOfSupport: params.seekerData.sourcesOfSupport,
-                mentalHealthHistoryInFamily: params.seekerData.mentalHealthHistoryInFamily,
+                familyStructure: params.seekerData.FamilyHistory.familyStructure,
+                sourcesOfStress: params.seekerData.FamilyHistory.sourcesOfStress,
+                sourcesOfSupport: params.seekerData.FamilyHistory.sourcesOfSupport,
+                mentalHealthHistoryInFamily: params.seekerData.FamilyHistory.mentalHealthHistoryInFamily,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1051,11 +1042,11 @@ export class CrudService {
         // Create Substances record
         const substanceUsage = await this.prisma.substances.create({
             data: {
-                introductionToSubstances: params.seekerData.introductionToSubstances,
-                substancesUsed: params.seekerData.substancesUsed,
-                frequency: params.seekerData.frequency,
-                quantity: params.seekerData.quantity,
-                reason: params.seekerData.reason,
+                introductionToSubstances: params.seekerData.Substances.introductionToSubstances,
+                substancesUsed: params.seekerData.Substances.substancesUsed,
+                frequency: params.seekerData.Substances.frequency,
+                quantity: params.seekerData.Substances.quantity,
+                reason: params.seekerData.Substances.reason,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1069,7 +1060,26 @@ export class CrudService {
         const preMorbidPersonality = await this.prisma.preMorbidPersonality.create({
             data: {
                 // Assuming seekerData contains all the necessary fields for PreMorbidPersonality
-                ...params.seekerData.PreMorbidPersonality,
+                opennessToExperience: params.seekerData.PreMorbidPersonality.opennessToExperience,
+                conscientiousness: params.seekerData.PreMorbidPersonality.conscientiousness,
+                extraversion: params.seekerData.PreMorbidPersonality.extraversion,
+                agreeableness: params.seekerData.PreMorbidPersonality.agreeableness,
+                neuroticism: params.seekerData.PreMorbidPersonality.neuroticism,
+                introversion: params.seekerData.PreMorbidPersonality.introversion,
+                noveltySeeking: params.seekerData.PreMorbidPersonality.noveltySeeking,
+                impulsiveness: params.seekerData.PreMorbidPersonality.impulsiveness,
+                perfectionism: params.seekerData.PreMorbidPersonality.perfectionism,
+                humour: params.seekerData.PreMorbidPersonality.humour,
+                assertiveness: params.seekerData.PreMorbidPersonality.assertiveness,
+                empathy: params.seekerData.PreMorbidPersonality.empathy,
+                autonomy: params.seekerData.PreMorbidPersonality.autonomy,
+                adaptivity: params.seekerData.PreMorbidPersonality.adaptivity,
+                altruism: params.seekerData.PreMorbidPersonality.altruism,
+                resilience: params.seekerData.PreMorbidPersonality.resilience,
+                patience: params.seekerData.PreMorbidPersonality.patience,
+                curiosity: params.seekerData.PreMorbidPersonality.curiosity,
+                creativity: params.seekerData.PreMorbidPersonality.creativity,
+                defiance: params.seekerData.PreMorbidPersonality.defiance,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1083,15 +1093,15 @@ export class CrudService {
         // Create SexualHistory record
         const sexualHistory = await this.prisma.sexualHistory.create({
             data: {
-                onsetOfPuberty: params.seekerData.onsetOfPuberty,
-                sexualIdentity: params.seekerData.sexualIdentity,
-                genderIdentity: params.seekerData.genderIdentity,
-                firstSelfExplorationExperience: params.seekerData.firstSelfExplorationExperience,
-                firstSexualExperience: params.seekerData.firstSexualExperience,
-                arousalAndOrgasmicFantasy: params.seekerData.arousalAndOrgasmicFantasy,
-                sexualDiseases: params.seekerData.sexualDiseases,
-                currentSexualFunctioning: params.seekerData.currentSexualFunctioning,
-                sexualAbuse: params.seekerData.sexualAbuse,
+                onsetOfPuberty: params.seekerData.SexualHistory.onsetOfPuberty,
+                sexualIdentity: params.seekerData.SexualHistory.sexualIdentity,
+                genderIdentity: params.seekerData.SexualHistory.genderIdentity,
+                firstSelfExplorationExperience: params.seekerData.SexualHistory.firstSelfExplorationExperience,
+                firstSexualExperience: params.seekerData.SexualHistory.firstSexualExperience,
+                arousalAndOrgasmicFantasy: params.seekerData.SexualHistory.arousalAndOrgasmicFantasy,
+                sexualDiseases: params.seekerData.SexualHistory.sexualDiseases,
+                currentSexualFunctioning: params.seekerData.SexualHistory.currentSexualFunctioning,
+                sexualAbuse: params.seekerData.SexualHistory.sexualAbuse,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1105,12 +1115,12 @@ export class CrudService {
         // Create PersonalHistory record
         const personalHistory = await this.prisma.personalHistory.create({
             data: {
-                yourComments: params.seekerData.yourComments,
-                perinatal: params.seekerData.perinatal,
-                childhood: params.seekerData.childhood,
-                adolescent: params.seekerData.adolescent,
-                adulthood: params.seekerData.adulthood,
-                oldAge: params.seekerData.oldAge,
+                yourComments: params.seekerData.PersonalHistory.yourComments,
+                perinatal: params.seekerData.PersonalHistory.perinatal,
+                childhood: params.seekerData.PersonalHistory.childhood,
+                adolescent: params.seekerData.PersonalHistory.adolescent,
+                adulthood: params.seekerData.PersonalHistory.adulthood,
+                oldAge: params.seekerData.PersonalHistory.oldAge,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1124,8 +1134,8 @@ export class CrudService {
         // Create PeersAndSocialHistory record
         const peersAndSocialHistory = await this.prisma.peersAndSocialHistory.create({
             data: {
-                relationshipWithPeers: params.seekerData.relationshipWithPeers,
-                friendships: params.seekerData.friendships,
+                relationshipWithPeers: params.seekerData.PeersAndSocialHistory.relationshipWithPeers,
+                friendships: params.seekerData.PeersAndSocialHistory.friendships,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1138,11 +1148,11 @@ export class CrudService {
         // Create WorkAndCareer record
         const workAndCareer = await this.prisma.workAndCareer.create({
             data: {
-                natureOfWork: params.seekerData.natureOfWork,
-                sourcesOfStress: params.seekerData.sourcesOfStress,
-                changesInJob: params.seekerData.changesInJob,
-                reasonsForChange: params.seekerData.reasonsForChange,
-                sourcesOfSupport: params.seekerData.sourcesOfSupport,
+                natureOfWork: params.seekerData.WorkAndCareer.natureOfWork,
+                sourcesOfStress: params.seekerData.WorkAndCareer.sourcesOfStress,
+                changesInJob: params.seekerData.WorkAndCareer.changesInJob,
+                reasonsForChange: params.seekerData.WorkAndCareer.reasonsForChange,
+                sourcesOfSupport: params.seekerData.WorkAndCareer.sourcesOfSupport,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1155,7 +1165,7 @@ export class CrudService {
         // Create ProvisionalDiagnosis record
         const provisionalDiagnosis = await this.prisma.provisionalDiagnosis.create({
             data: {
-                provisionalDiagnosis: params.seekerData.provisionalDiagnosis,
+                provisionalDiagnosis: params.seekerData.ProvisionalDiagnosis.provisionalDiagnosis,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1169,7 +1179,7 @@ export class CrudService {
         // Create DifferentialDiagnosis record
         const differentialDiagnosis = await this.prisma.differentialDiagnosis.create({
             data: {
-                differentialDiagnosis: params.seekerData.differentialDiagnosis,
+                differentialDiagnosis: params.seekerData.DifferentialDiagnosis.differentialDiagnosis,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1183,10 +1193,10 @@ export class CrudService {
         // Create MentalStatusExamination record
         const mentalStatusExamination = await this.prisma.mentalStatusExamination.create({
             data: {
-                moodAndEffect: params.seekerData.moodAndEffect,
-                attentionAndConcentration: params.seekerData.attentionAndConcentration,
-                levelOfInsight: params.seekerData.levelOfInsight,
-                yourComments: params.seekerData.yourComments,
+                moodAndEffect: params.seekerData.MentalStatusExamination.moodAndEffect,
+                attentionAndConcentration: params.seekerData.MentalStatusExamination.attentionAndConcentration,
+                levelOfInsight: params.seekerData.MentalStatusExamination.levelOfInsight,
+                yourComments: params.seekerData.MentalStatusExamination.yourComments,
                 seekerId: params.seekerId  // Assuming seekerId is the foreign key
             }
         });
@@ -1199,15 +1209,15 @@ export class CrudService {
         // Create IntakeInformation record
         const intakeInformation = await this.prisma.intakeInformation.create({
             data: {
-                name: params.seekerData.name,
-                keyTherapist: params.seekerData.keyTherapist,
-                statusOfInformedConsent: params.seekerData.statusOfInformedConsent,
-                currentFees: params.seekerData.currentFees,
-                slidingScale: params.seekerData.slidingScale,
-                mediumOfTherapy: params.seekerData.mediumOfTherapy,
-                reference: params.seekerData.reference,
-                intakeClinician: params.seekerData.intakeClinician,
-                psychiatrist: params.seekerData.psychiatrist,
+                name: params.seekerData.IntakeInformation.name,
+                keyTherapist: params.seekerData.IntakeInformation.keyTherapist,
+                statusOfInformedConsent: params.seekerData.IntakeInformation.statusOfInformedConsent,
+                currentFees: params.seekerData.IntakeInformation.currentFees,
+                slidingScale: params.seekerData.IntakeInformation.slidingScale,
+                mediumOfTherapy: params.seekerData.IntakeInformation.mediumOfTherapy,
+                reference: params.seekerData.IntakeInformation.reference,
+                intakeClinician: params.seekerData.IntakeInformation.intakeClinician,
+                psychiatrist: params.seekerData.IntakeInformation.psychiatrist,
                 seekerId: params.seekerId
             }
         });
@@ -1240,7 +1250,7 @@ export class CrudService {
                 predisposingFactors: params.seekerData?.predisposingFactors ?? null,
                 perpetuatingFactors: params.seekerData?.perpetuatingFactors ?? null,
                 protectiveFactors: params.seekerData?.protectiveFactors ?? null,
-                // summary: params.seekerData?.summary ?? null
+                summary: params.seekerData?.summary ?? null
             }
         };
 
@@ -1270,11 +1280,11 @@ export class CrudService {
                     }
                 }
             }
-        }).catch(err => console.log('Error from planetscale side', err));
+        })
         return updatedPresentingProblem;
     }
 
-    async updateBasicInformation(params: { seekerId: string, seekerData: any }): Promise<any> {
+    async updateBasicBasicDemographicDetails(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             IntakeInformation: {
                 name: params.seekerData?.name ?? null
@@ -1295,7 +1305,7 @@ export class CrudService {
             }
         };
 
-        const updatedBasicInformation = await this.prisma.seekers.update({
+        const updatedBasicDemographicDetails = await this.prisma.seekers.update({
             where: { id: params.seekerId },
             data: {
                 IntakeInformation: {
@@ -1321,18 +1331,16 @@ export class CrudService {
             }
         });
 
-        console.log('transformed data', updatedBasicInformation)
-
-        return updatedBasicInformation;
+        return updatedBasicDemographicDetails;
     }
 
     async updateEmergencyContact(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             EmergencyContact: {
-                name: params.seekerData.name,
-                relationship: params.seekerData.relationship,
-                proximity: params.seekerData.proximity,
-                contact: params.seekerData.contactInfo
+                name: params.seekerData?.name ?? null,
+                relationship: params.seekerData?.relationship ?? null,
+                proximity: params.seekerData?.proximity ?? null,
+                contact: params.seekerData?.contactInfo ?? null
             }
         };
 
@@ -1356,10 +1364,10 @@ export class CrudService {
     async updateFamilyHistory(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             FamilyHistory: {
-                familyStructure: params.seekerData.familyStructure,
-                sourcesOfStress: params.seekerData.sourcesOfStress,
-                sourcesOfSupport: params.seekerData.sourcesOfSupport,
-                mentalHealthHistoryInFamily: params.seekerData.mentalHealthHistoryInFamily
+                familyStructure: params.seekerData?.familyStructure ?? null,
+                sourcesOfStress: params.seekerData?.sourcesOfStress ?? null,
+                sourcesOfSupport: params.seekerData?.sourcesOfSupport ?? null,
+                mentalHealthHistoryInFamily: params.seekerData?.mentalHealthHistoryInFamily ?? null
             }
         };
 
@@ -1383,11 +1391,11 @@ export class CrudService {
     async updateSubstanceUsage(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             Substances: {
-                introductionToSubstances: params.seekerData.introductionToSubstance,
-                substancesUsed: params.seekerData.substanceUsed,
-                frequency: params.seekerData.frequency,
-                quantity: params.seekerData.quantity,
-                reason: params.seekerData.reason
+                introductionToSubstances: params.seekerData.introductionToSubstance ?? null,
+                substancesUsed: params.seekerData?.substanceUsed ?? null,
+                frequency: params.seekerData?.frequency ?? null,
+                quantity: params.seekerData?.quantity ?? null,
+                reason: params.seekerData?.reason ?? null
             }
         };
 
@@ -1411,26 +1419,26 @@ export class CrudService {
     async updatePreMorbidPersonality(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             PreMorbidPersonality: {
-                opennessToExperience: params.seekerData["Openness to Expression"],
-                conscientiousness: params.seekerData.Conscientiousness,
-                extraversion: params.seekerData.Extraversion,
-                agreeableness: params.seekerData.Agreeableness,
-                neuroticism: params.seekerData.Neuroticism,
-                introversion: params.seekerData.Introversion,
-                noveltySeeking: params.seekerData["Novelty Seeking"],
-                impulsiveness: params.seekerData.Impulsiveness,
-                perfectionism: params.seekerData.Perfectionism,
-                humour: params.seekerData.Humour,
-                assertiveness: params.seekerData.Assertiveness,
-                empathy: params.seekerData.Empathy,
-                autonomy: params.seekerData.Autonomy,
-                adaptivity: params.seekerData.Adaptivity,
-                altruism: params.seekerData.Altruism,
-                resilience: params.seekerData.Resilience,
-                patience: params.seekerData.Patience,
-                curiosity: params.seekerData.Curiosity,
-                creativity: params.seekerData.Creativity,
-                defiance: params.seekerData.Defiance,
+                opennessToExperience: params.seekerData?.["Openness to Expression"] ?? null,
+                conscientiousness: params.seekerData?.Conscientiousness ?? null,
+                extraversion: params.seekerData?.Extraversion ?? null,
+                agreeableness: params.seekerData?.Agreeableness ?? null,
+                neuroticism: params.seekerData?.Neuroticism ?? null,
+                introversion: params.seekerData?.Introversion ?? null,
+                noveltySeeking: params.seekerData?.["Novelty Seeking"] ?? null,
+                impulsiveness: params.seekerData?.Impulsiveness ?? null,
+                perfectionism: params.seekerData?.Perfectionism ?? null,
+                humour: params.seekerData?.Humour ?? null,
+                assertiveness: params.seekerData?.Assertiveness ?? null,
+                empathy: params.seekerData?.Empathy ?? null,
+                autonomy: params.seekerData?.Autonomy ?? null,
+                adaptivity: params.seekerData?.Adaptivity ?? null,
+                altruism: params.seekerData?.Altruism ?? null,
+                resilience: params.seekerData?.Resilience ?? null,
+                patience: params.seekerData?.Patience ?? null,
+                curiosity: params.seekerData?.Curiosity ?? null,
+                creativity: params.seekerData?.Creativity ?? null,
+                defiance: params.seekerData?.Defiance ?? null,
             }
         };
 
@@ -1454,15 +1462,15 @@ export class CrudService {
     async updateSexualHistory(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             SexualHistory: {
-                onsetOfPuberty: params.seekerData.onsetOfPuberty,
-                genderIdentity: params.seekerData.genderIdentity,
-                arousalAndOrgasmicFantasy: params.seekerData.fantasy,
-                firstSexualExperience: params.seekerData.firstSexualExperience,
-                sexualIdentity: params.seekerData.sexualIdentity,
-                firstSelfExplorationExperience: params.seekerData.firstSelfExploration,
-                currentSexualFunctioning: params.seekerData.overallSexualFunctioning,
-                sexualDiseases: params.seekerData.sexualDiseases,
-                sexualAbuse: params.seekerData.sexualAbuse
+                onsetOfPuberty: params.seekerData?.onsetOfPuberty ?? null,
+                genderIdentity: params.seekerData?.genderIdentity ?? null,
+                arousalAndOrgasmicFantasy: params.seekerData?.fantasy ?? null,
+                firstSexualExperience: params.seekerData?.firstSexualExperience ?? null,
+                sexualIdentity: params.seekerData?.sexualIdentity ?? null,
+                firstSelfExplorationExperience: params.seekerData?.firstSelfExploration ?? null,
+                currentSexualFunctioning: params.seekerData?.overallSexualFunctioning ?? null,
+                sexualDiseases: params.seekerData?.sexualDiseases ?? null,
+                sexualAbuse: params.seekerData?.sexualAbuse ?? null
             }
         };
 
@@ -1486,11 +1494,11 @@ export class CrudService {
     async updatePersonalHistory(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             PersonalHistory: {
-                perinatal: params.seekerData.perinatal,
-                childhood: params.seekerData.childhood,
-                adolescent: params.seekerData.adolescent,
-                adulthood: params.seekerData.adulthood,
-                oldAge: params.seekerData.oldAge
+                perinatal: params.seekerData?.perinatal ?? null,
+                childhood: params.seekerData?.childhood ?? null,
+                adolescent: params.seekerData?.adolescent ?? null,
+                adulthood: params.seekerData?.adulthood ?? null,
+                oldAge: params.seekerData?.oldAge ?? null
             }
         };
 
@@ -1516,8 +1524,8 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             PeersAndSocialHistory: {
-                relationshipWithPeers: params.seekerData.relationshipWithPeers,
-                relationshipWithFriendships: params.seekerData.friendships
+                relationshipWithPeers: params.seekerData?.relationshipWithPeers ?? null,
+                friendships: params.seekerData?.friendships ?? null
             }
         };
 
@@ -1544,11 +1552,11 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             WorkAndCareer: {
-                natureOfWork: params.seekerData.natureOfWork,
-                sourcesOfStress: params.seekerData.sourcesOfStress,
-                changesInJob: params.seekerData.changesInJob,
-                reasonsForChange: params.seekerData.reasonsForChange,
-                sourcesOfSupport: params.seekerData.sourcesOfSupport
+                natureOfWork: params.seekerData?.natureOfWork ?? null,
+                sourcesOfStress: params.seekerData?.sourcesOfStress ?? null,
+                changesInJob: params.seekerData?.changesInJob ?? null,
+                reasonsForChange: params.seekerData?.reasonsForChange ?? null,
+                sourcesOfSupport: params.seekerData?.sourcesOfSupport ?? null
             }
         };
 
@@ -1575,7 +1583,7 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             ProvisionalDiagnosis: {
-                provisionalDiagnosis: params.seekerData.yourComments
+                provisionalDiagnosis: params.seekerData?.yourComments ?? null
             }
         };
 
@@ -1602,7 +1610,7 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             DifferentialDiagnosis: {
-                differentialDiagnosis: params.seekerData.yourComments
+                differentialDiagnosis: params.seekerData?.yourComments ?? null
             }
         };
 
@@ -1629,10 +1637,10 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             MentalStatusExamination: {
-                moodAndEffect: params.seekerData.moodAndEffect,
-                attentionAndConcentration: params.seekerData.attentionAndConcentration,
-                levelOfInsight: params.seekerData.levelOfInsight,
-                yourComments: params.seekerData.yourComments,
+                moodAndEffect: params.seekerData?.moodAndEffect ?? null,
+                attentionAndConcentration: params.seekerData?.attentionAndConcentration ?? null,
+                levelOfInsight: params.seekerData?.levelOfInsight ?? null,
+                yourComments: params.seekerData?.yourComments ?? null,
                 // Add any other fields that are required for update
                 // cognition: params.seekerData.cognition,
                 // generalAppearance: params.seekerData.generalAppearance,
@@ -1646,7 +1654,7 @@ export class CrudService {
             data: {
                 MentalStatusExamination: {
                     update: {
-                        data: transformedUpdatedData.MentalStatusExamination
+                        data: transformedUpdatedData?.MentalStatusExamination ?? null
                     }
                 }
             },
@@ -1662,16 +1670,16 @@ export class CrudService {
         // Transforming the incoming seekerData into the format expected by Prisma
         const transformedUpdatedData = {
             IntakeInformation: {
-                name: params.seekerData.name,
-                keyTherapist: params.seekerData.keyTherapist,
-                statusOfInformedConsent: params.seekerData.informedConsentStatus,
-                currentFees: params.seekerData.currentFees,
-                slidingScale: params.seekerData.SlidingScale,
-                mediumOfTherapy: params.seekerData.mediumOfTherapy,
-                reference: params.seekerData.reference,
-                intakeClinician: params.seekerData.intakeClinician,
-                psychiatrist: params.seekerData.psychiatrist,
-                yourComments: params.seekerData.yourComments
+                name: params.seekerData?.name ?? null,
+                keyTherapist: params.seekerData?.keyTherapist ?? null,
+                statusOfInformedConsent: params.seekerData?.informedConsentStatus ?? null,
+                currentFees: params.seekerData?.currentFees ?? null,
+                slidingScale: params.seekerData?.SlidingScale ?? null,
+                mediumOfTherapy: params.seekerData?.mediumOfTherapy ?? null,
+                reference: params.seekerData?.reference ?? null,
+                intakeClinician: params.seekerData?.intakeClinician ?? null,
+                psychiatrist: params.seekerData?.psychiatrist ?? null,
+                // yourComments: params.seekerData.yourComments
             }
         };
 

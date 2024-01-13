@@ -89,7 +89,6 @@ export class CrudController {
 
     @Get('get-presenting-problem/:seekerId')
     getPresentingProblem(@Param('seekerId') seekerId: string): Promise<any> {
-        console.log('get presenting problem controller')
         return this.crudService.getPresentingProblem(seekerId);
     }
 
@@ -111,27 +110,27 @@ export class CrudController {
         return this.crudService.updatePresentingProblem(updateData);
     }
 
-    @Get('get-basic-information/:seekerId')
-    getBasicInformation(@Param('seekerId') seekerId: string): Promise<any> {
-        return this.crudService.getBasicInformation(seekerId);
+    @Get('get-basic-demographic-details/:seekerId')
+    getBasicDemographicDetails(@Param('seekerId') seekerId: string): Promise<any> {
+        return this.crudService.getBasicDemographicDetails(seekerId);
     }
 
-    @Post('create-basic-information/:seekerId')
-    createBasicInformation(
+    @Post('create-basic-demographic-details/:seekerId')
+    createBasicDemographicDetails(
         @Param('seekerId') seekerId: string,
         @Body() seekerData: any,
     ): Promise<any> {
         const createData = { seekerData, seekerId };
-        return this.crudService.createBasicInformation(createData);
+        return this.crudService.createBasicDemographicDetails(createData);
     }
 
-    @Post('update-basic-information/:seekerId')
-    updateBasicInformation(
+    @Post('update-basic-demographic-details/:seekerId')
+    updateBasicDemographicDetails(
         @Param('seekerId') seekerId: string,
         @Body() seekerData: any,
     ): Promise<any> {
         const updateData = { seekerData, seekerId };
-        return this.crudService.updateBasicInformation(updateData);
+        return this.crudService.updateBasicBasicDemographicDetails(updateData);
     }
 
     @Get('get-emergency-contact/:seekerId')
