@@ -6,21 +6,25 @@ import { CrudService } from './crud.service';
 export class CrudController {
     constructor(private readonly crudService: CrudService) { }
 
+    // Gets all the seekers associated with a clerkUserId
     @Get('get-all-seekers/:clerkUserId')
     getAllSeekers(@Param('clerkUserId') clerkUserId: string): Promise<any> {
         return this.crudService.getAllSeekers(clerkUserId);
     }
 
+    // Gets all the seekers cohort cards associated with a clerkUserId
     @Get('get-all-seekers-cohort-cards/:clerkUserId')
     getAllSeekersCohortCards(@Param('clerkUserId') clerkUserId: string): Promise<any> {
         return this.crudService.getAllSeekersCohortCards(clerkUserId);
     }
 
+    // Gets all the progress items for a seeker 
     @Get('get-seeker-progress/:seekerId')
     getSeekerProgress(@Param('seekerId') seekerId: string): Promise<any> {
         return this.crudService.getSeekerProgress(seekerId);
     }
 
+    // Creates a new seeker progress item
     @Post('create-seeker-progress/:seekerId')
     createSeekerProgress(
         @Param('seekerId') seekerId: string,
@@ -30,6 +34,7 @@ export class CrudController {
         return this.crudService.createSeekerProgress(createData);
     }
 
+    // Edits a seeker progress item
     @Post('edit-seeker-progress/:seekerProgressId')
     editSeekerProgress(
         @Param('seekerId') seekerProgressId: string,
@@ -39,6 +44,7 @@ export class CrudController {
         return this.crudService.editSeekerProgress(createData);
     }
 
+    // Deletes a seeker progress item
     @Post('delete-seeker-progress/:seekerProgressId')
     deleteSeekerProgress(
         @Param('seekerProgressId') seekerProgressId: string
@@ -58,6 +64,7 @@ export class CrudController {
         return this.crudService.createNewTherapist(createData);
     }
 
+    // updates an existing therapist data
     @Post('update-existing-therapist/:clerkUserId')
     updateExistingTherapist(
         @Param('clerkUserId') clerkUserId: string,
@@ -67,25 +74,31 @@ export class CrudController {
         return this.crudService.updateExistingTherapist(createData);
     }
 
-    @Post('create-new-seeker/:clerkUserId')
-    createNewSeeker(
+    // Function to create a new seeker and associated clinical history
+    @Post('create-new-seeker-and-clinical-history/:clerkUserId')
+    createNewSeekerAndClinicalHistory(
         @Param('clerkUserId') clerkUserId: string,
         @Body() seekerData: any,
     ): Promise<any> {
         const createData = { seekerData, clerkUserId };
-        return this.crudService.createNewSeeker(createData);
+        return this.crudService.createNewSeekerAndClinicalHistory(createData);
     }
 
-    @Post('update-existing-seeker/:seekerId')
-    updateExistingSeeker(
+    // Updates an existing seeker details
+    @Post('update-existing-seeker-and-clinical-information/:seekerId')
+    updateExistingSeekerAndClinicalInformation(
         @Param('seekerId') seekerId: string,
         @Body() updatedSeekerData: any,
     ): Promise<any> {
         const createData = { updatedSeekerData, seekerId };
-        return this.crudService.updateExistingSeeker(createData);
+        return this.crudService.updateExistingSeekerAndClinicalInformation(createData);
     }
 
-    // APIs related to seeker data.
+    /*****
+     * 
+     * APIs related to seeker clinical history
+     * 
+     *****/
 
     @Get('get-presenting-problem/:seekerId')
     getPresentingProblem(@Param('seekerId') seekerId: string): Promise<any> {
@@ -409,16 +422,5 @@ export class CrudController {
         const updateData = { seekerData, seekerId };
         return this.crudService.updateIntakeInformation(updateData);
     }
-
-    // Function to create a new seeker and associated clinical history
-    @Post('create-new-seeker-and-clinical-history/:clerkUserId')
-    createNewSeekerAndClinicalHistory(
-        @Param('clerkUserId') clerkUserId: string,
-        @Body() seekerData: any,
-    ): Promise<any> {
-        const createData = { seekerData, clerkUserId };
-        return this.crudService.createNewSeekerAndClinicalHistory(createData);
-    }
-
 }
 

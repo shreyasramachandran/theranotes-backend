@@ -211,7 +211,8 @@ export class CrudService {
         });
     }
 
-    async createNewSeeker(data: { clerkUserId: string, seekerData: any }): Promise<any> {
+    // Function to create new seeker and associated clinical history. All the clinical history tables would be empty n
+    async createNewSeekerAndClinicalHistory(data: { clerkUserId: string, seekerData: any }): Promise<any> {
         // Fetch the session to get the associated user
         const therapist = await this.prisma.therapists.findFirst({
             where: { clerkUserId: data.clerkUserId }
@@ -225,13 +226,11 @@ export class CrudService {
                     connect: { id: therapist.id },
                 },
                 // Add Seeker data
-                referredBy: data.seekerData.referredBy,
                 referralSourcePlatform: data.seekerData.referralSourcePlatform,
                 initialCommentsByTherapist: data.seekerData.initialCommentsByTherapist,
-                location: data.seekerData.location,
                 // ... other seeker fields
                 SeekerAttributes: {
-                    create: data.seekerData.seekerAttributes, // Object with seekerAttributes fields
+                    create: {} // Object with seekerAttributes fields. Is empty
                 },
                 IntakeInformation: {
                     create: data.seekerData.IntakeInformation // Object with intakeInformation fields
@@ -239,28 +238,95 @@ export class CrudService {
                 BasicDemographicDetails: {
                     create: data.seekerData.basicDemographicDetails, // Object with basicDemographicDetails fields
                 },
+                PresentingProblem: {
+                    create: {
+                        EpisodicDocumentation: {
+                            create: {}
+                        },
+                        HistoryOfPresentProblem: {
+                            create: {}
+                        }
+                    }
+                },
+                EmergencyContact: {
+                    create: {}
+                },
+                FamilyHistory: {
+                    create: {}
+                },
+                Substances: {
+                    create: {}
+                },
+                PreMorbidPersonality: {
+                    create: {}
+                },
+                SexualHistory: {
+                    create: {}
+                },
+                PersonalHistory: {
+                    create: {}
+                },
+                PeersAndSocialHistory: {
+                    create: {}
+                },
+                WorkAndCareer: {
+                    create: {}
+                },
+                ProvisionalDiagnosis: {
+                    create: {}
+                },
+                DifferentialDiagnosis: {
+                    create: {}
+                },
+                MentalStatusExamination: {
+                    create: {}
+                }
             },
             include: {
-                IntakeInformation: true
+                IntakeInformation: true,
+                SeekerAttributes: true,
+                BasicDemographicDetails: true,
+                PresentingProblem: {
+                    include: {
+                        EpisodicDocumentation: true,
+                        HistoryOfPresentProblem: true
+                    }
+                },
+                EmergencyContact: true,
+                FamilyHistory: true,
+                Substances: true,
+                PreMorbidPersonality: true,
+                SexualHistory: true,
+                PersonalHistory: true,
+                PeersAndSocialHistory: true,
+                WorkAndCareer: true,
+                ProvisionalDiagnosis: true,
+                DifferentialDiagnosis: true,
+                MentalStatusExamination: true
             }
         });
     }
 
-    async updateExistingSeeker(data: { seekerId: string, updatedSeekerData: any }): Promise<any> {
-        return this.prisma.intakeInformation.upsert({
-            where: {
-                seekerId: data.seekerId, // Unique identifier for SeekerAttributes
-            },
-            update: data.updatedSeekerData,
-            create: {
-                ...data.updatedSeekerData,
-                seeker: {
-                    connect: {
-                        id: data.seekerId
+    async updateExistingSeekerAndClinicalInformation(data: { seekerId: string, updatedSeekerData: any }): Promise<any> {
+        const updatedSeeker = await this.prisma.seekers.update({
+            where: { id: data.seekerId },
+            data: {
+                IntakeInformation: {
+                    update: {
+                        statusOfInformedConsent: data.updatedSeekerData.IntakeInformation.statusOfInformedConsent,
+                        currentFees: data.updatedSeekerData.IntakeInformation.currentFees,
+                        mediumOfTherapy: data.updatedSeekerData.IntakeInformation.mediumOfTherapy,
+                        intakeClinician: data.updatedSeekerData.IntakeInformation.intakeClinician,
+                        keyTherapist: data.updatedSeekerData.IntakeInformation.keyTherapist
                     }
                 }
+            },
+            include: {
+                IntakeInformation: true,
             }
         });
+
+        return updatedSeeker;
     }
 
     /*****
@@ -1701,102 +1767,6 @@ export class CrudService {
         });
 
         return updatedIntakeInformation;
-    }
-
-    // Function to create new seeker and associated clinical history. All the clinical history tables would be empty n
-    async createNewSeekerAndClinicalHistory(data: { clerkUserId: string, seekerData: any }): Promise<any> {
-        // Fetch the session to get the associated user
-        const therapist = await this.prisma.therapists.findFirst({
-            where: { clerkUserId: data.clerkUserId }
-        });
-        if (!therapist) {
-            return {}
-        }
-        return this.prisma.seekers.create({
-            data: {
-                therapist: {
-                    connect: { id: therapist.id },
-                },
-                // Add Seeker data
-                referralSourcePlatform: data.seekerData.referralSourcePlatform,
-                initialCommentsByTherapist: data.seekerData.initialCommentsByTherapist,
-                // ... other seeker fields
-                SeekerAttributes: {
-                    create: {} // Object with seekerAttributes fields. Is empty
-                },
-                IntakeInformation: {
-                    create: data.seekerData.IntakeInformation // Object with intakeInformation fields
-                },
-                BasicDemographicDetails: {
-                    create: data.seekerData.basicDemographicDetails, // Object with basicDemographicDetails fields
-                },
-                PresentingProblem: {
-                    create: {
-                        EpisodicDocumentation: {
-                            create: {}
-                        },
-                        HistoryOfPresentProblem: {
-                            create: {}
-                        }
-                    }
-                },
-                EmergencyContact: {
-                    create: {}
-                },
-                FamilyHistory: {
-                    create: {}
-                },
-                Substances: {
-                    create: {}
-                },
-                PreMorbidPersonality: {
-                    create: {}
-                },
-                SexualHistory: {
-                    create: {}
-                },
-                PersonalHistory: {
-                    create: {}
-                },
-                PeersAndSocialHistory: {
-                    create: {}
-                },
-                WorkAndCareer: {
-                    create: {}
-                },
-                ProvisionalDiagnosis: {
-                    create: {}
-                },
-                DifferentialDiagnosis: {
-                    create: {}
-                },
-                MentalStatusExamination: {
-                    create: {}
-                }
-            },
-            include: {
-                IntakeInformation: true,
-                SeekerAttributes: true,
-                BasicDemographicDetails: true,
-                PresentingProblem: {
-                    include: {
-                        EpisodicDocumentation: true,
-                        HistoryOfPresentProblem: true
-                    }
-                },
-                EmergencyContact: true,
-                FamilyHistory: true,
-                Substances: true,
-                PreMorbidPersonality: true,
-                SexualHistory: true,
-                PersonalHistory: true,
-                PeersAndSocialHistory: true,
-                WorkAndCareer: true,
-                ProvisionalDiagnosis: true,
-                DifferentialDiagnosis: true,
-                MentalStatusExamination: true
-            }
-        });
     }
 }
 

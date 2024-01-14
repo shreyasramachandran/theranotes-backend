@@ -40,8 +40,8 @@ model Seekers {
   therapistId                String?
   therapist                  Therapists?              @relation(fields: [therapistId], references: [id])
   TherapySessions            TherapySessions[]
-  SeekerAttributes           SeekerAttributes?
   SeekerProgress             SeekerProgress[]
+  SeekerAttributes           SeekerAttributes?
   IntakeInformation          IntakeInformation?
   BasicDemographicDetails    BasicDemographicDetails?
   EmergencyContact           EmergencyContact?
