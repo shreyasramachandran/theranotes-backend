@@ -47,8 +47,8 @@ export class CrudController {
         return this.crudService.deleteSeekerProgress(createData);
     }
 
-    // Creates a new therapist with clerkUserId. This clerkUserId is used by frontend to fetch info about 
-    // the therapist from backend 
+    // Creates a new therapist with clerkUserId. 
+    // This clerkUserId is used by frontend to fetch info about the therapist from backend 
     @Post('create-new-therapist/:clerkUserId')
     createNewTherapist(
         @Param('clerkUserId') clerkUserId: string,
