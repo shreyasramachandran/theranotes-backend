@@ -410,5 +410,15 @@ export class CrudController {
         return this.crudService.updateIntakeInformation(updateData);
     }
 
+    // Function to create a new seeker and associated clinical history
+    @Post('create-new-seeker-and-clinical-history/:clerkUserId')
+    createNewSeekerAndClinicalHistory(
+        @Param('clerkUserId') clerkUserId: string,
+        @Body() seekerData: any,
+    ): Promise<any> {
+        const createData = { seekerData, clerkUserId };
+        return this.crudService.createNewSeekerAndClinicalHistory(createData);
+    }
+
 }
 
