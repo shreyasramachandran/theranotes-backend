@@ -221,23 +221,37 @@ export class CrudService {
         if (!therapist) {
             return {}
         }
+
+        // Convert to db format
+        const transformedData = {
+            referralSourcePlatform: data.seekerData?.platform ?? null,
+            initialCommentsByTherapist: data.seekerData?.comments ?? null,
+            IntakeInformation: {
+                name: data.seekerData?.name ?? null
+            },
+            BasicDemographicDetails: {
+                email: data.seekerData?.email ?? null,
+                contactNumber: data.seekerData?.number ?? null
+            }
+        }
+
         return this.prisma.seekers.create({
             data: {
                 therapist: {
                     connect: { id: therapist.id },
                 },
                 // Add Seeker data
-                referralSourcePlatform: data.seekerData.referralSourcePlatform,
-                initialCommentsByTherapist: data.seekerData.initialCommentsByTherapist,
+                referralSourcePlatform: transformedData.referralSourcePlatform,
+                initialCommentsByTherapist: transformedData.initialCommentsByTherapist,
                 // ... other seeker fields
                 SeekerAttributes: {
                     create: {} // Object with seekerAttributes fields. Is empty
                 },
                 IntakeInformation: {
-                    create: data.seekerData.IntakeInformation // Object with intakeInformation fields
+                    create: transformedData.IntakeInformation // Object with intakeInformation fields
                 },
                 BasicDemographicDetails: {
-                    create: data.seekerData.basicDemographicDetails, // Object with basicDemographicDetails fields
+                    create: transformedData.BasicDemographicDetails, // Object with basicDemographicDetails fields
                 },
                 PresentingProblem: {
                     create: {
@@ -309,16 +323,27 @@ export class CrudService {
     }
 
     async updateExistingSeekerAndClinicalInformation(data: { seekerId: string, updatedSeekerData: any }): Promise<any> {
+        // Convert to db format
+        const transformedData = {
+            IntakeInformation: {
+                statusOfInformedConsent: data.updatedSeekerData?.status ?? null,
+                currentFees: data.updatedSeekerData?.fees ?? null,
+                mediumOfTherapy: data.updatedSeekerData?.medium ?? null,
+                intakeClinician: data.updatedSeekerData?.intakeClinician ?? null,
+                keyTherapist: data.updatedSeekerData?.keyTherapist ?? null,
+            }
+        }
+
         const updatedSeeker = await this.prisma.seekers.update({
             where: { id: data.seekerId },
             data: {
                 IntakeInformation: {
                     update: {
-                        statusOfInformedConsent: data.updatedSeekerData.IntakeInformation.statusOfInformedConsent,
-                        currentFees: data.updatedSeekerData.IntakeInformation.currentFees,
-                        mediumOfTherapy: data.updatedSeekerData.IntakeInformation.mediumOfTherapy,
-                        intakeClinician: data.updatedSeekerData.IntakeInformation.intakeClinician,
-                        keyTherapist: data.updatedSeekerData.IntakeInformation.keyTherapist
+                        statusOfInformedConsent: transformedData.IntakeInformation.statusOfInformedConsent,
+                        currentFees: transformedData.IntakeInformation.currentFees,
+                        mediumOfTherapy: transformedData.IntakeInformation.mediumOfTherapy,
+                        intakeClinician: transformedData.IntakeInformation.intakeClinician,
+                        keyTherapist: transformedData.IntakeInformation.keyTherapist
                     }
                 }
             },
