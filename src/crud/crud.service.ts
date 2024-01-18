@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
@@ -220,23 +221,37 @@ export class CrudService {
         if (!therapist) {
             return {}
         }
+
+        // Convert to db format
+        const transformedData = {
+            referralSourcePlatform: data.seekerData?.platform ?? null,
+            initialCommentsByTherapist: data.seekerData?.comments ?? null,
+            IntakeInformation: {
+                name: data.seekerData?.name ?? null
+            },
+            BasicDemographicDetails: {
+                email: data.seekerData?.email ?? null,
+                contactNumber: data.seekerData?.number ?? null
+            }
+        }
+
         return this.prisma.seekers.create({
             data: {
                 therapist: {
                     connect: { id: therapist.id },
                 },
                 // Add Seeker data
-                referralSourcePlatform: data.seekerData.referralSourcePlatform,
-                initialCommentsByTherapist: data.seekerData.initialCommentsByTherapist,
+                referralSourcePlatform: transformedData.referralSourcePlatform,
+                initialCommentsByTherapist: transformedData.initialCommentsByTherapist,
                 // ... other seeker fields
                 SeekerAttributes: {
                     create: {} // Object with seekerAttributes fields. Is empty
                 },
                 IntakeInformation: {
-                    create: data.seekerData.IntakeInformation // Object with intakeInformation fields
+                    create: transformedData.IntakeInformation // Object with intakeInformation fields
                 },
                 BasicDemographicDetails: {
-                    create: data.seekerData.basicDemographicDetails, // Object with basicDemographicDetails fields
+                    create: transformedData.BasicDemographicDetails, // Object with basicDemographicDetails fields
                 },
                 PresentingProblem: {
                     create: {
@@ -308,16 +323,27 @@ export class CrudService {
     }
 
     async updateExistingSeekerAndClinicalInformation(data: { seekerId: string, updatedSeekerData: any }): Promise<any> {
+        // Convert to db format
+        const transformedData = {
+            IntakeInformation: {
+                statusOfInformedConsent: data.updatedSeekerData?.status ?? null,
+                currentFees: data.updatedSeekerData?.fees ?? null,
+                mediumOfTherapy: data.updatedSeekerData?.medium ?? null,
+                intakeClinician: data.updatedSeekerData?.intakeClinician ?? null,
+                keyTherapist: data.updatedSeekerData?.keyTherapist ?? null,
+            }
+        }
+
         const updatedSeeker = await this.prisma.seekers.update({
             where: { id: data.seekerId },
             data: {
                 IntakeInformation: {
                     update: {
-                        statusOfInformedConsent: data.updatedSeekerData.IntakeInformation.statusOfInformedConsent,
-                        currentFees: data.updatedSeekerData.IntakeInformation.currentFees,
-                        mediumOfTherapy: data.updatedSeekerData.IntakeInformation.mediumOfTherapy,
-                        intakeClinician: data.updatedSeekerData.IntakeInformation.intakeClinician,
-                        keyTherapist: data.updatedSeekerData.IntakeInformation.keyTherapist
+                        statusOfInformedConsent: transformedData.IntakeInformation.statusOfInformedConsent,
+                        currentFees: transformedData.IntakeInformation.currentFees,
+                        mediumOfTherapy: transformedData.IntakeInformation.mediumOfTherapy,
+                        intakeClinician: transformedData.IntakeInformation.intakeClinician,
+                        keyTherapist: transformedData.IntakeInformation.keyTherapist
                     }
                 }
             },
@@ -622,53 +648,53 @@ export class CrudService {
 
         // Map it as according to how you want it to be rendered on frontend
         interface InterfaceData {
-            "Openness to Expression": string,
-            Conscientiousness: string,
-            Extraversion: string,
-            Agreeableness: string,
-            Neuroticism: string,
-            Introversion: string,
-            Patience: string,
-            Curiosity: string,
-            Creativity: string,
-            Defiance: string,
-            "Novelty Seeking": string,
-            Impulsiveness: string,
-            Perfectionism: string,
-            Humour: string,
-            Assertiveness: string,
-            Empathy: string,
-            Autonomy: string,
-            Adaptivity: string,
-            Altruism: string,
-            Resilience: string,
-            Comments: string
+            opennessToExpression: string,
+            conscientiousness: string,
+            extraversion: string,
+            agreeableness: string,
+            neuroticism: string,
+            introversion: string,
+            patience: string,
+            curiosity: string,
+            creativity: string,
+            defiance: string,
+            noveltySeeking: string,
+            impulsiveness: string,
+            perfectionism: string,
+            humour: string,
+            assertiveness: string,
+            empathy: string,
+            autonomy: string,
+            adaptivity: string,
+            altruism: string,
+            resilience: string,
+            comments: string
         }
 
         // Transform the data to be sent to frontend
         function transformData(sourceArray: any): InterfaceData[] {
             return sourceArray.map(item => ({
-                "Openness to Expression": item.PreMorbidPersonality?.opennessToExperience,
-                Conscientiousness: item.PreMorbidPersonality.conscientiousness,
-                Extraversion: item.PreMorbidPersonality.extraversion,
-                Agreeableness: item.PreMorbidPersonality.agreeableness,
-                Neuroticism: item.PreMorbidPersonality.neuroticism,
-                Introversion: item.PreMorbidPersonality.introversion,
-                Patience: item.PreMorbidPersonality.patience,
-                Curiosity: item.PreMorbidPersonality.curiosity,
-                Creativity: item.PreMorbidPersonality.creativity,
-                Defiance: item.PreMorbidPersonality.defiance,
-                "Novelty Seeking": item.PreMorbidPersonality.noveltySeeking,
-                Impulsiveness: item.PreMorbidPersonality.impulsiveness,
-                Perfectionism: item.PreMorbidPersonality.perfectionism,
-                Humour: item.PreMorbidPersonality.humour,
-                Assertiveness: item.PreMorbidPersonality.assertiveness,
-                Empathy: item.PreMorbidPersonality.empathy,
-                Autonomy: item.PreMorbidPersonality.autonomy,
-                Adaptivity: item.PreMorbidPersonality.adaptivity,
-                Altruism: item.PreMorbidPersonality.altruism,
-                Resilience: item.PreMorbidPersonality.resilience,
-                Comments: "No comments"
+                opennessToExpression: item.PreMorbidPersonality?.opennessToExperience,
+                conscientiousness: item.PreMorbidPersonality.conscientiousness,
+                extraversion: item.PreMorbidPersonality.extraversion,
+                agreeableness: item.PreMorbidPersonality.agreeableness,
+                neuroticism: item.PreMorbidPersonality.neuroticism,
+                introversion: item.PreMorbidPersonality.introversion,
+                patience: item.PreMorbidPersonality.patience,
+                curiosity: item.PreMorbidPersonality.curiosity,
+                creativity: item.PreMorbidPersonality.creativity,
+                defiance: item.PreMorbidPersonality.defiance,
+                noveltySeeking: item.PreMorbidPersonality.noveltySeeking,
+                impulsiveness: item.PreMorbidPersonality.impulsiveness,
+                perfectionism: item.PreMorbidPersonality.perfectionism,
+                humour: item.PreMorbidPersonality.humour,
+                assertiveness: item.PreMorbidPersonality.assertiveness,
+                empathy: item.PreMorbidPersonality.empathy,
+                autonomy: item.PreMorbidPersonality.autonomy,
+                adaptivity: item.PreMorbidPersonality.adaptivity,
+                altruism: item.PreMorbidPersonality.altruism,
+                resilience: item.PreMorbidPersonality.resilience,
+                comments: "No comments"
             }));
         }
 
@@ -1488,26 +1514,26 @@ export class CrudService {
     async updatePreMorbidPersonality(params: { seekerId: string, seekerData: any }): Promise<any> {
         const transformedUpdatedData = {
             PreMorbidPersonality: {
-                opennessToExperience: params.seekerData?.["Openness to Expression"] ?? null,
-                conscientiousness: params.seekerData?.Conscientiousness ?? null,
-                extraversion: params.seekerData?.Extraversion ?? null,
-                agreeableness: params.seekerData?.Agreeableness ?? null,
-                neuroticism: params.seekerData?.Neuroticism ?? null,
-                introversion: params.seekerData?.Introversion ?? null,
-                noveltySeeking: params.seekerData?.["Novelty Seeking"] ?? null,
-                impulsiveness: params.seekerData?.Impulsiveness ?? null,
-                perfectionism: params.seekerData?.Perfectionism ?? null,
-                humour: params.seekerData?.Humour ?? null,
-                assertiveness: params.seekerData?.Assertiveness ?? null,
-                empathy: params.seekerData?.Empathy ?? null,
-                autonomy: params.seekerData?.Autonomy ?? null,
-                adaptivity: params.seekerData?.Adaptivity ?? null,
-                altruism: params.seekerData?.Altruism ?? null,
-                resilience: params.seekerData?.Resilience ?? null,
-                patience: params.seekerData?.Patience ?? null,
-                curiosity: params.seekerData?.Curiosity ?? null,
-                creativity: params.seekerData?.Creativity ?? null,
-                defiance: params.seekerData?.Defiance ?? null,
+                opennessToExperience: params.seekerData?.opennessToExpression ?? null,
+                conscientiousness: params.seekerData?.conscientiousness ?? null,
+                extraversion: params.seekerData?.extraversion ?? null,
+                agreeableness: params.seekerData?.agreeableness ?? null,
+                neuroticism: params.seekerData?.neuroticism ?? null,
+                introversion: params.seekerData?.introversion ?? null,
+                noveltySeeking: params.seekerData?.noveltySeeking ?? null,
+                impulsiveness: params.seekerData?.impulsiveness ?? null,
+                perfectionism: params.seekerData?.perfectionism ?? null,
+                humour: params.seekerData?.humour ?? null,
+                assertiveness: params.seekerData?.assertiveness ?? null,
+                empathy: params.seekerData?.empathy ?? null,
+                autonomy: params.seekerData?.autonomy ?? null,
+                adaptivity: params.seekerData?.adaptivity ?? null,
+                altruism: params.seekerData?.altruism ?? null,
+                resilience: params.seekerData?.resilience ?? null,
+                patience: params.seekerData?.patience ?? null,
+                curiosity: params.seekerData?.curiosity ?? null,
+                creativity: params.seekerData?.creativity ?? null,
+                defiance: params.seekerData?.defiance ?? null,
             }
         };
 

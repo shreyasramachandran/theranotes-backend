@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { CrudController } from './crud.controller';
 import { CrudService } from './crud.service';
@@ -6,4 +7,4 @@ import { CrudService } from './crud.service';
     controllers: [CrudController],
     providers: [CrudService]
 })
-export class CrudModule {}
+export class CrudModule { }
