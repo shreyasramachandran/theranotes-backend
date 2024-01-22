@@ -34,8 +34,9 @@ export class SeekerProgress {
           time: item.createdAt,
         }));
       }
-      const transformedSeekerDetails = transformData(seekerProgressDetails);
-      return transformedSeekerDetails;
+      const transformedSeekerProgress = transformData(seekerProgressDetails);
+      console.log('Get Seeker Progress: ', transformedSeekerProgress);
+      return transformedSeekerProgress;
     } catch (error) {
       throw error;
     }
@@ -47,6 +48,15 @@ export class SeekerProgress {
     progressBody: string;
   }): Promise<any> {
     try {
+      console.log(
+        'Inside CREATE SEEKER PROGRESS:\n\n',
+        'data.seekerId:',
+        data.seekerId,
+        'data.progressSubject:',
+        data.progressSubject,
+        'data.progressBody:',
+        data.progressBody,
+      );
       return this.prisma.seekerProgress.create({
         data: {
           progressSubject: data.progressSubject,
