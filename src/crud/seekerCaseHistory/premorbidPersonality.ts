@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class PremorbidPersonality {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createPreMorbidPersonality(params: {
     seekerId: string;
@@ -41,9 +48,13 @@ export class PremorbidPersonality {
           },
         });
 
+      this.logger.log('Creating Premorbid Personality');
+
       // Return the created PreMorbidPersonality data
       return preMorbidPersonality;
     } catch (error) {
+      this.logger.error('Error creating Premorbid Personality', error.stack);
+
       throw error;
     }
   }
@@ -133,8 +144,12 @@ export class PremorbidPersonality {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Premorbid Personality');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Premorbid Personality', error.stack);
+
       throw error;
     }
   }
@@ -182,9 +197,12 @@ export class PremorbidPersonality {
           PreMorbidPersonality: true,
         },
       });
+      this.logger.log('Updating Premorbid Personality');
 
       return updatedPreMorbidPersonality;
     } catch (error) {
+      this.logger.error('Error Updating Premorbid Personality', error.stack);
+
       throw error;
     }
   }

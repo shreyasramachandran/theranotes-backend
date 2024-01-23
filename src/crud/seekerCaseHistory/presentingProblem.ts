@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class PresentingProblem {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createPresentingProblem(params: {
     seekerId: string;
@@ -49,8 +56,11 @@ export class PresentingProblem {
           HistoryOfPresentProblem: true,
         },
       });
+      this.logger.log('Creating Presenting Problem');
+
       return createdData;
     } catch (error) {
+      this.logger.error('Error Creating Presenting Problem', error.stack);
       throw error;
     }
   }
@@ -119,8 +129,11 @@ export class PresentingProblem {
       const transformedPresentingProblemData = transformData(
         presentingProblemData,
       );
+      this.logger.log('Getting Presenting Problem');
+
       return transformedPresentingProblemData;
     } catch (error) {
+      this.logger.error('Error getting Presenting Problem', error.stack);
       throw error;
     }
   }
@@ -175,8 +188,11 @@ export class PresentingProblem {
           },
         },
       });
+      this.logger.log('Updating Presenting Problem');
+
       return updatedPresentingProblem;
     } catch (error) {
+      this.logger.error('Error Updating Presenting Problem', error.stack);
       throw error;
     }
   }

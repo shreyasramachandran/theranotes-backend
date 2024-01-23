@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class DifferentialDiagnosis {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createDifferentialDiagnosis(params: {
     seekerId: string;
@@ -18,10 +25,13 @@ export class DifferentialDiagnosis {
             seekerId: params.seekerId, // Assuming seekerId is the foreign key
           },
         });
+      this.logger.log('Creating Differential Diagnosis');
 
       // Return the created DifferentialDiagnosis data
       return differentialDiagnosis;
     } catch (error) {
+      this.logger.error('Error Creating Differential Diagnosis', error.stack);
+
       throw error;
     }
   }
@@ -52,8 +62,12 @@ export class DifferentialDiagnosis {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Differential Diagnosis');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Differntial Diagnosis', error.stack);
+
       throw error;
     }
   }
@@ -84,9 +98,12 @@ export class DifferentialDiagnosis {
           DifferentialDiagnosis: true,
         },
       });
+      this.logger.log('Updating Differential Diagnosis');
 
       return updatedDifferentialDiagnosis;
     } catch (error) {
+      this.logger.error('Error Updating Differential Diagnosis', error.stack);
+
       throw error;
     }
   }

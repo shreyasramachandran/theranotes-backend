@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class WorkAndCareer {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createWorkCareer(params: {
     seekerId: string;
@@ -21,9 +28,11 @@ export class WorkAndCareer {
         },
       });
 
+      this.logger.log('Creating Work&Career Data');
       // Return the created WorkAndCareer data
       return workAndCareer;
     } catch (error) {
+      this.logger.error('Error creating Work And Career', error.stack);
       throw error;
     }
   }
@@ -68,8 +77,12 @@ export class WorkAndCareer {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Work & Career Data');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Work & Career', error.stack);
+
       throw error;
     }
   }
@@ -104,9 +117,11 @@ export class WorkAndCareer {
           WorkAndCareer: true,
         },
       });
+      this.logger.log('Updating Work & Career');
 
       return updatedWorkAndCareer;
     } catch (error) {
+      this.logger.error('Error Updating Work & Career', error.stack);
       throw error;
     }
   }

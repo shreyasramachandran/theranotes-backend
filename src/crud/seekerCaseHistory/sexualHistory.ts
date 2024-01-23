@@ -1,9 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class SexualHistory {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
 
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   async createSexualHistory(params: {
     seekerId: string;
     seekerData: any;
@@ -28,10 +34,12 @@ export class SexualHistory {
           seekerId: params.seekerId, // Assuming seekerId is the foreign key
         },
       });
+      this.logger.log('Creating Sexual History');
 
       // Return the created SexualHistory data
       return sexualHistory;
     } catch (error) {
+      this.logger.error('Error Creating Sexual History', error.stack);
       throw error;
     }
   }
@@ -89,8 +97,10 @@ export class SexualHistory {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Sexual History');
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Sexual History', error.stack);
       throw error;
     }
   }
@@ -130,9 +140,11 @@ export class SexualHistory {
           SexualHistory: true,
         },
       });
+      this.logger.log('Updating Sexual History');
 
       return updatedSexualHistory;
     } catch (error) {
+      this.logger.error('Error updating Sexual History', error.stack);
       throw error;
     }
   }

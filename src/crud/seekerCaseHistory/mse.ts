@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class MSE {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createMentalStatusExamination(params: {
     seekerId: string;
@@ -26,8 +33,12 @@ export class MSE {
           },
         });
       // Return the created MentalStatusExamination data
+      this.logger.log('Creating MSE');
+
       return mentalStatusExamination;
     } catch (error) {
+      this.logger.error('Error creating MSE', error.stack);
+
       throw error;
     }
   }
@@ -77,8 +88,12 @@ export class MSE {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting MSE');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting MSE', error.stack);
+
       throw error;
     }
   }
@@ -116,9 +131,12 @@ export class MSE {
           MentalStatusExamination: true,
         },
       });
+      this.logger.log('Updating MSE');
 
       return updatedMentalStatusExamination;
     } catch (error) {
+      this.logger.error('Error Updating MSE', error.stack);
+
       throw error;
     }
   }

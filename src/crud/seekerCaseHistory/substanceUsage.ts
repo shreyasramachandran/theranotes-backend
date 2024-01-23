@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class SubstanceUsage {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createSubstanceUsage(params: {
     seekerId: string;
@@ -21,10 +28,13 @@ export class SubstanceUsage {
           seekerId: params.seekerId, // Assuming seekerId is the foreign key
         },
       });
+      this.logger.log('Creating Substance Usage');
 
       // Return the created substance usage data
       return substanceUsage;
     } catch (error) {
+      this.logger.error('Error Creating Substance Usage', error.stack);
+
       throw error;
     }
   }
@@ -69,8 +79,12 @@ export class SubstanceUsage {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Substance Usage');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Substance Usage', error.stack);
+
       throw error;
     }
   }
@@ -104,9 +118,12 @@ export class SubstanceUsage {
           Substances: true,
         },
       });
+      this.logger.log('Updating Substance Usage');
 
       return updatedSubstances;
     } catch (error) {
+      this.logger.error('Error updating Substance Usage', error.stack);
+
       throw error;
     }
   }

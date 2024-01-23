@@ -1,9 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class PersonalHistory {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
 
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   async createPersonalHistory(params: {
     seekerId: string;
     seekerData: any;
@@ -22,9 +28,11 @@ export class PersonalHistory {
         },
       });
 
+      this.logger.log('Creating Personal History');
       // Return the created PersonalHistory data
       return personalHistory;
     } catch (error) {
+      this.logger.error('Error Creating Personal History', error.stack);
       throw error;
     }
   }
@@ -70,8 +78,12 @@ export class PersonalHistory {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Personal history');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Personal History', error.stack);
+
       throw error;
     }
   }
@@ -105,9 +117,12 @@ export class PersonalHistory {
           PersonalHistory: true,
         },
       });
+      this.logger.log('Updating Personal History');
 
       return updatedPersonalHistory;
     } catch (error) {
+      this.logger.error('Error Updating Personal History', error.stack);
+
       throw error;
     }
   }

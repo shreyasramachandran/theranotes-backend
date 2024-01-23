@@ -1,9 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class SeekerProgress {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
 
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   async getSeekerProgress(seekerId: string): Promise<any> {
     try {
       const seekerProgressDetails = await this.prisma.seekerProgress.findMany({
@@ -35,9 +41,11 @@ export class SeekerProgress {
         }));
       }
       const transformedSeekerProgress = transformData(seekerProgressDetails);
-      console.log('Get Seeker Progress: ', transformedSeekerProgress);
+      this.logger.log('Getting Seeker Progress');
+
       return transformedSeekerProgress;
     } catch (error) {
+      this.logger.error('Error getting Seeker Progress', error.stack);
       throw error;
     }
   }
@@ -48,15 +56,8 @@ export class SeekerProgress {
     progressBody: string;
   }): Promise<any> {
     try {
-      console.log(
-        'Inside CREATE SEEKER PROGRESS:\n\n',
-        'data.seekerId:',
-        data.seekerId,
-        'data.progressSubject:',
-        data.progressSubject,
-        'data.progressBody:',
-        data.progressBody,
-      );
+      this.logger.log('Creating Seeker Progress');
+
       return this.prisma.seekerProgress.create({
         data: {
           progressSubject: data.progressSubject,
@@ -68,6 +69,8 @@ export class SeekerProgress {
         },
       });
     } catch (error) {
+      this.logger.error('Error Creating Seeker Progress', error.stack);
+
       throw error;
     }
   }
@@ -79,6 +82,8 @@ export class SeekerProgress {
     progressBody: string;
   }): Promise<any> {
     try {
+      this.logger.log('Updating Seeker Progress');
+
       return this.prisma.seekerProgress.update({
         where: { id: data.seekerProgressId },
         data: {
@@ -87,6 +92,8 @@ export class SeekerProgress {
         },
       });
     } catch (error) {
+      this.logger.error('Error updating Seeker Progress', error.stack);
+
       throw error;
     }
   }
@@ -94,10 +101,17 @@ export class SeekerProgress {
   // Delete seeker progress
   async deleteSeekerProgress(data: { seekerProgressId: string }): Promise<any> {
     try {
+      this.logger.log('Deleting Seeker Progress');
+
       return this.prisma.seekerProgress.delete({
         where: { id: data.seekerProgressId },
       });
     } catch (error) {
+      this.logger.error(
+        'Error Deleting Seeker Progress - you had one job :p',
+        error.stack,
+      );
+
       throw error;
     }
   }

@@ -1,9 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class PeersAndSocialHistory {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
 
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   async createPeersAndSocialHistory(params: {
     seekerId: string;
     seekerData: any;
@@ -20,9 +26,13 @@ export class PeersAndSocialHistory {
           },
         });
 
+      this.logger.log('Getting Peer & Social History');
+
       // Return the created PeersAndSocialHistory data
       return peersAndSocialHistory;
     } catch (error) {
+      this.logger.error('Error Creating Peer & Social History', error.stack);
+
       throw error;
     }
   }
@@ -60,8 +70,13 @@ export class PeersAndSocialHistory {
       }
 
       const transformedData = transformData(data);
+
+      this.logger.log('Getting Peer & Social History');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Peer & Social History', error.stack);
+
       throw error;
     }
   }
@@ -95,8 +110,12 @@ export class PeersAndSocialHistory {
         },
       });
 
+      this.logger.log('Updating Peer & Social History');
+
       return updatedPeersAndSocialHistory;
     } catch (error) {
+      this.logger.error('Error Updating Peer & Social History', error.stack);
+
       throw error;
     }
   }

@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class ProvisionalDiagnosis {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createProvisionalDiagnosis(params: {
     seekerId: string;
@@ -18,10 +25,12 @@ export class ProvisionalDiagnosis {
             seekerId: params.seekerId, // Assuming seekerId is the foreign key
           },
         });
+      this.logger.log('Creating Provisional Diagnosis');
 
       // Return the created ProvisionalDiagnosis data
       return provisionalDiagnosis;
     } catch (error) {
+      this.logger.error('Error Creating Provisional Diagnosis', error.stack);
       throw error;
     }
   }
@@ -52,8 +61,11 @@ export class ProvisionalDiagnosis {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Provisional Diagnosis');
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Provisional Diagnosis', error.stack);
+
       throw error;
     }
   }
@@ -84,9 +96,10 @@ export class ProvisionalDiagnosis {
           ProvisionalDiagnosis: true,
         },
       });
-
+      this.logger.log('Updating Provisional Diagnosis');
       return updatedProvisionalDiagnosis;
     } catch (error) {
+      this.logger.error('Error updating Provisional Diagnosis', error.stack);
       throw error;
     }
   }

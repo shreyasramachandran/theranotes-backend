@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class SeekerBasic {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createNewSeekerAndClinicalHistory(data: {
     clerkUserId: string;
@@ -14,8 +21,11 @@ export class SeekerBasic {
         where: { clerkUserId: data.clerkUserId },
       });
       if (!therapist) {
+        this.logger.warn('Therapist not found ');
         return {};
       }
+      this.logger.log('Creating New Seeker & Clinical History');
+
       return this.prisma.seekers.create({
         data: {
           therapist: {
@@ -103,6 +113,8 @@ export class SeekerBasic {
         },
       });
     } catch (error) {
+      this.logger.error('Error creating new Seeker', error.stack);
+
       throw error;
     }
   }
@@ -134,9 +146,12 @@ export class SeekerBasic {
           IntakeInformation: true,
         },
       });
+      this.logger.log('Updating New Seeker');
 
       return updatedSeeker;
     } catch (error) {
+      this.logger.error('Error Updating New Seeker ', error.stack);
+
       throw error;
     }
   }
@@ -148,6 +163,8 @@ export class SeekerBasic {
         where: { clerkUserId: clerkUserId },
       });
       if (!therapist) {
+        this.logger.warn('Therapist not found ');
+
         return {};
       }
       // Fetch seekers and their attributes associated with this user
@@ -215,8 +232,12 @@ export class SeekerBasic {
         });
       }
       const transformedSeekerDetails = transformData(seekerDetails);
+      this.logger.log('Getting New Seeker Info');
+
       return transformedSeekerDetails;
     } catch (error) {
+      this.logger.error('Error getting New Seeker Info', error.stack);
+
       throw error;
     }
   }
@@ -229,6 +250,8 @@ export class SeekerBasic {
       });
 
       if (!therapist) {
+        this.logger.warn('Therapist not found ');
+
         return {};
       }
       const seekerDetails = await this.prisma.seekers.findMany({
@@ -262,8 +285,12 @@ export class SeekerBasic {
         }));
       }
       const transformedSeekerDetails = transformData(seekerDetails);
+      this.logger.log('Getting Seeker Cohort Cards');
+
       return transformedSeekerDetails;
     } catch (error) {
+      this.logger.error('Error getting Seeker Cohort Cards', error.stack);
+
       throw error;
     }
   }

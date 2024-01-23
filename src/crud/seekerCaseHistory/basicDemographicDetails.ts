@@ -1,9 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class BasicDemographicDetails {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
 
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   async createBasicDemographicDetails(params: {
     seekerId: string;
     seekerData: any;
@@ -31,8 +37,12 @@ export class BasicDemographicDetails {
         });
 
       // Return the created data
+      this.logger.log('Creating Basic Demographic');
+
       return basicDemographicDetails;
     } catch (error) {
+      this.logger.error('Error Creating Basic Demographic', error.stack);
+
       throw error;
     }
   }
@@ -107,8 +117,12 @@ export class BasicDemographicDetails {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Basic Demographic');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Basic Demographic', error.stack);
+
       throw error;
     }
   }
@@ -163,9 +177,12 @@ export class BasicDemographicDetails {
           FamilyHistory: true,
         },
       });
+      this.logger.log('Updating Basic Demographic');
 
       return updatedBasicDemographicDetails;
     } catch (error) {
+      this.logger.error('Error Updating Basic Demographic', error.stack);
+
       throw error;
     }
   }

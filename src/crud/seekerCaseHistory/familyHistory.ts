@@ -1,8 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from 'src/logger.service';
 
 export class FamilyHistory {
   private prisma = new PrismaClient();
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createFamilyHistory(params: {
     seekerId: string;
@@ -20,10 +27,13 @@ export class FamilyHistory {
           seekerId: params.seekerId, // Assuming seekerId is the foreign key
         },
       });
+      this.logger.log('Creating Family History');
 
       // Return the created FamilyHistory data
       return familyHistory;
     } catch (error) {
+      this.logger.error('Error Creating Family History', error.stack);
+
       throw error;
     }
   }
@@ -65,8 +75,12 @@ export class FamilyHistory {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting Family History');
+
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting Family History', error.stack);
+
       throw error;
     }
   }
@@ -99,9 +113,12 @@ export class FamilyHistory {
           FamilyHistory: true,
         },
       });
+      this.logger.log('Updating Seeker Progress');
 
       return updatedFamilyHistory;
     } catch (error) {
+      this.logger.error('Error Updating Seeker Progress', error.stack);
+
       throw error;
     }
   }

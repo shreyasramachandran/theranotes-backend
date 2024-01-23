@@ -1,8 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { LoggerService } from '../../logger.service';
 
 export class EmergencyContact {
   private prisma = new PrismaClient();
+
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
 
   async createEmergencyContact(params: {
     seekerId: string;
@@ -10,6 +18,7 @@ export class EmergencyContact {
   }): Promise<any> {
     try {
       // Create EmergencyContact record
+
       const emergencyContact = await this.prisma.emergencyContact.create({
         data: {
           name: params.seekerData.EmergencyContact.name,
@@ -20,9 +29,11 @@ export class EmergencyContact {
         },
       });
 
+      this.logger.log('Emergency contact created successfully');
       // Return the created emergency contact data
       return emergencyContact;
     } catch (error) {
+      this.logger.error('Error creating emergency contact', error.stack);
       throw error;
     }
   }
@@ -64,8 +75,10 @@ export class EmergencyContact {
       }
 
       const transformedData = transformData(data);
+      this.logger.log('Getting emergency contact');
       return transformedData;
     } catch (error) {
+      this.logger.error('Error getting emergency contact', error.stack);
       throw error;
     }
   }
@@ -97,9 +110,11 @@ export class EmergencyContact {
           EmergencyContact: true,
         },
       });
+      this.logger.log('Updating emergency contact');
 
       return updatedEmergencyContact;
     } catch (error) {
+      this.logger.error('Error updating emergency contact', error.stack);
       throw error;
     }
   }

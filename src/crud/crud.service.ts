@@ -17,6 +17,7 @@ import { WorkAndCareer } from './seekerCaseHistory/workCareer';
 import { ProvisionalDiagnosis } from './seekerCaseHistory/provisionalDiagnosis';
 import { DifferentialDiagnosis } from './seekerCaseHistory/differentialDiagnosis';
 import { MSE } from './seekerCaseHistory/mse';
+import { LoggerService } from 'src/logger.service';
 
 @Injectable()
 export class CrudService {
@@ -38,6 +39,13 @@ export class CrudService {
   private differentialDiagnosis = new DifferentialDiagnosis();
   private mse = new MSE();
 
+  //Logger
+  private logger: LoggerService;
+
+  // Default constructor creates a default logger
+  constructor(logger?: LoggerService) {
+    this.logger = logger || new LoggerService();
+  }
   //
   // THERAPIST CREATE UPDATE
   //
@@ -389,122 +397,146 @@ export class CrudService {
   //
 
   async getIntakeInformation(seekerId: string): Promise<any> {
-    const data = await this.prisma.seekers.findMany({
-      where: { id: seekerId },
-      include: {
-        IntakeInformation: {
-          select: {
-            name: true,
-            keyTherapist: true,
-            statusOfInformedConsent: true,
-            currentFees: true,
-            slidingScale: true,
-            mediumOfTherapy: true,
-            reference: true,
-            intakeClinician: true,
-            psychiatrist: true,
+    try {
+      this.logger.log('Getting Intake Information');
+
+      const data = await this.prisma.seekers.findMany({
+        where: { id: seekerId },
+        include: {
+          IntakeInformation: {
+            select: {
+              name: true,
+              keyTherapist: true,
+              statusOfInformedConsent: true,
+              currentFees: true,
+              slidingScale: true,
+              mediumOfTherapy: true,
+              reference: true,
+              intakeClinician: true,
+              psychiatrist: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    // Map it as according to how you want it to be rendered on frontend
-    interface InterfaceData {
-      clientId: string;
-      name: string;
-      keyTherapist: string;
-      informedConsentStatus: string;
-      currentFees: string;
-      SlidingScale: string;
-      mediumOfTherapy: string;
-      reference: string;
-      intakeClinician: string;
-      psychiatrist: string;
-      yourComments: string;
+      // Map it as according to how you want it to be rendered on frontend
+      interface InterfaceData {
+        clientId: string;
+        name: string;
+        keyTherapist: string;
+        informedConsentStatus: string;
+        currentFees: string;
+        SlidingScale: string;
+        mediumOfTherapy: string;
+        reference: string;
+        intakeClinician: string;
+        psychiatrist: string;
+        yourComments: string;
+      }
+
+      // Transform the data to be sent to frontend
+      function transformData(sourceArray: any): InterfaceData[] {
+        return sourceArray.map((item) => ({
+          clientId: seekerId,
+          name: item.IntakeInformation.name,
+          keyTherapist: item.IntakeInformation.keyTherapist,
+          informedConsentStatus: item.IntakeInformation.statusOfInformedConsent,
+          currentFees: item.IntakeInformation.currentFees,
+          SlidingScale: item.IntakeInformation.slidingScale,
+          mediumOfTherapy: item.IntakeInformation.mediumOfTherapy,
+          reference: item.IntakeInformation.reference,
+          intakeClinician: item.IntakeInformation.intakeClinician,
+          psychiatrist: item.IntakeInformation.psychiatrist,
+          yourComments: item.IntakeInformation.yourComments,
+        }));
+      }
+
+      const transformedData = transformData(data);
+      return transformedData;
+    } catch (error) {
+      this.logger.error('Error getting Intake Information', error.stack);
+
+      throw error;
     }
-
-    // Transform the data to be sent to frontend
-    function transformData(sourceArray: any): InterfaceData[] {
-      return sourceArray.map((item) => ({
-        clientId: seekerId,
-        name: item.IntakeInformation.name,
-        keyTherapist: item.IntakeInformation.keyTherapist,
-        informedConsentStatus: item.IntakeInformation.statusOfInformedConsent,
-        currentFees: item.IntakeInformation.currentFees,
-        SlidingScale: item.IntakeInformation.slidingScale,
-        mediumOfTherapy: item.IntakeInformation.mediumOfTherapy,
-        reference: item.IntakeInformation.reference,
-        intakeClinician: item.IntakeInformation.intakeClinician,
-        psychiatrist: item.IntakeInformation.psychiatrist,
-        yourComments: item.IntakeInformation.yourComments,
-      }));
-    }
-
-    const transformedData = transformData(data);
-    return transformedData;
   }
 
   async createIntakeInformation(params: {
     seekerId: string;
     seekerData: any;
   }): Promise<any> {
-    // Create IntakeInformation record
-    const intakeInformation = await this.prisma.intakeInformation.create({
-      data: {
-        name: params.seekerData.IntakeInformation.name,
-        keyTherapist: params.seekerData.IntakeInformation.keyTherapist,
-        statusOfInformedConsent:
-          params.seekerData.IntakeInformation.statusOfInformedConsent,
-        currentFees: params.seekerData.IntakeInformation.currentFees,
-        slidingScale: params.seekerData.IntakeInformation.slidingScale,
-        mediumOfTherapy: params.seekerData.IntakeInformation.mediumOfTherapy,
-        reference: params.seekerData.IntakeInformation.reference,
-        intakeClinician: params.seekerData.IntakeInformation.intakeClinician,
-        psychiatrist: params.seekerData.IntakeInformation.psychiatrist,
-        seekerId: params.seekerId,
-      },
-    });
+    try {
+      // Create IntakeInformation record
+      this.logger.log('Creating Intake Information');
 
-    // Return the created IntakeInformation data
-    return intakeInformation;
+      const intakeInformation = await this.prisma.intakeInformation.create({
+        data: {
+          name: params.seekerData.IntakeInformation.name,
+          keyTherapist: params.seekerData.IntakeInformation.keyTherapist,
+          statusOfInformedConsent:
+            params.seekerData.IntakeInformation.statusOfInformedConsent,
+          currentFees: params.seekerData.IntakeInformation.currentFees,
+          slidingScale: params.seekerData.IntakeInformation.slidingScale,
+          mediumOfTherapy: params.seekerData.IntakeInformation.mediumOfTherapy,
+          reference: params.seekerData.IntakeInformation.reference,
+          intakeClinician: params.seekerData.IntakeInformation.intakeClinician,
+          psychiatrist: params.seekerData.IntakeInformation.psychiatrist,
+          seekerId: params.seekerId,
+        },
+      });
+
+      // Return the created IntakeInformation data
+      return intakeInformation;
+    } catch (error) {
+      this.logger.error('Error creating Intake Information', error.stack);
+
+      throw error;
+    }
   }
 
   async updateIntakeInformation(params: {
     seekerId: string;
     seekerData: any;
   }): Promise<any> {
-    // Transforming the incoming seekerData into the format expected by Prisma
-    const transformedUpdatedData = {
-      IntakeInformation: {
-        name: params.seekerData?.name ?? null,
-        keyTherapist: params.seekerData?.keyTherapist ?? null,
-        statusOfInformedConsent:
-          params.seekerData?.informedConsentStatus ?? null,
-        currentFees: params.seekerData?.currentFees ?? null,
-        slidingScale: params.seekerData?.SlidingScale ?? null,
-        mediumOfTherapy: params.seekerData?.mediumOfTherapy ?? null,
-        reference: params.seekerData?.reference ?? null,
-        intakeClinician: params.seekerData?.intakeClinician ?? null,
-        psychiatrist: params.seekerData?.psychiatrist ?? null,
-        // yourComments: params.seekerData.yourComments
-      },
-    };
+    try {
+      this.logger.log('Updating Intake contact');
 
-    // Updating the IntakeInformation in the database
-    const updatedIntakeInformation = await this.prisma.seekers.update({
-      where: { id: params.seekerId },
-      data: {
+      // Transforming the incoming seekerData into the format expected by Prisma
+      const transformedUpdatedData = {
         IntakeInformation: {
-          update: {
-            data: transformedUpdatedData.IntakeInformation,
+          name: params.seekerData?.name ?? null,
+          keyTherapist: params.seekerData?.keyTherapist ?? null,
+          statusOfInformedConsent:
+            params.seekerData?.informedConsentStatus ?? null,
+          currentFees: params.seekerData?.currentFees ?? null,
+          slidingScale: params.seekerData?.SlidingScale ?? null,
+          mediumOfTherapy: params.seekerData?.mediumOfTherapy ?? null,
+          reference: params.seekerData?.reference ?? null,
+          intakeClinician: params.seekerData?.intakeClinician ?? null,
+          psychiatrist: params.seekerData?.psychiatrist ?? null,
+          // yourComments: params.seekerData.yourComments
+        },
+      };
+
+      // Updating the IntakeInformation in the database
+      const updatedIntakeInformation = await this.prisma.seekers.update({
+        where: { id: params.seekerId },
+        data: {
+          IntakeInformation: {
+            update: {
+              data: transformedUpdatedData.IntakeInformation,
+            },
           },
         },
-      },
-      include: {
-        IntakeInformation: true,
-      },
-    });
+        include: {
+          IntakeInformation: true,
+        },
+      });
 
-    return updatedIntakeInformation;
+      return updatedIntakeInformation;
+    } catch (error) {
+      this.logger.error('Error updating Intake Information', error.stack);
+
+      throw error;
+    }
   }
 }
