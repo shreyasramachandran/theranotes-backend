@@ -2,13 +2,19 @@
 import pino, { LoggerOptions } from 'pino';
 
 interface PinoOptions extends LoggerOptions {
-  prettyPrint?: { colorize?: boolean };
+  transport: {
+    target: 'pino-pretty';
+    options: {
+      levelFirst: true;
+      translateTime: true;
+      colorize: true;
+    };
+  };
   timestamp?: () => string;
 }
 
 export class LoggerService {
   private logger = pino({
-    prettyPrint: { colorize: true },
     timestamp: () => `,"time":"${new Date().toLocaleString()}"`,
   } as PinoOptions);
 
