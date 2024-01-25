@@ -17,7 +17,7 @@ model Therapists {
   email                  String?                 @unique
   phone                  String?                 @unique
   referredBy             String?
-  clerkUserId            String?                 @unique
+  clerkUserId            String                  @unique
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   referralSourcePlatform ReferralSourcePlatform?
