@@ -5,8 +5,8 @@ import * as fs from 'fs';
 
 async function bootstrap() {
   const httpsOptions = {
-    key: fs.readFileSync('/etc/letsencrypt/live/api.islandstones.xyz/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/api.islandstones.xyz/fullchain.pem'),
+    key: fs.readFileSync(process.env.KEY),
+    cert: fs.readFileSync(process.env.CERT),
   };
   const app = await NestFactory.create(AppModule, {
     httpsOptions,
