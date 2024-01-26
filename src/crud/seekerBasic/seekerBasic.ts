@@ -209,6 +209,7 @@ export class SeekerBasic {
           IntakeInformation: {
             select: {
               currentFees: true,
+              name: true
             },
           },
           BasicDemographicDetails: {
@@ -238,15 +239,15 @@ export class SeekerBasic {
         return sourceArray.map((item, index) => {
           return {
             pid: item.id, // assuming id is convertible to number
-            patientName: `Patient ${index + 1}`, // Placeholder, as the real name is not in the source
+            patientName: item.IntakeInformation?.name ?? null,
             sessionsDone: item.SeekerAttributes?.numberOfSessionsDone ?? null,
             nextSessionScheduled:
               item.SeekerAttributes?.nextSessionScheduled === 1 ?? null,
-            fees: 100, // Placeholder value
+            fees: item.IntakeInformation?.currentFees ?? null, // Placeholder value
             preferredDayAndTime:
               item.SeekerAttributes?.preferredDayAndTime ?? null,
             therapist: item.therapistId,
-            contactNo: '123-456-7890', // Placeholder value
+            contactNo: item.BasicDemographicDetails?.contactNumber ?? null, // Placeholder value
             problemType: item.SeekerAttributes?.problemType ?? null,
             lastSessionPaymentDone:
               item.SeekerAttributes?.lastSessionPaymentDone === 1 ?? null,
