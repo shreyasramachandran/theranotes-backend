@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { IsActive } from '@prisma/client';
 import { LoggerService } from 'src/logger.service';
 
 export class SeekerBasic {
@@ -36,6 +37,9 @@ export class SeekerBasic {
         BasicDemographicDetails: {
           email: data.seekerData?.email ?? null,
           contactNumber: data.seekerData?.number ?? null
+        },
+        SeekerAttributes: {
+          isActive: IsActive.Yes
         }
       }
 
@@ -50,7 +54,7 @@ export class SeekerBasic {
             transformedData.initialCommentsByTherapist,
           // ... other seeker fields
           SeekerAttributes: {
-            create: {}, // Object with seekerAttributes fields. Is empty
+            create: transformedData.SeekerAttributes
           },
           IntakeInformation: {
             create: transformedData.IntakeInformation, // Object with intakeInformation fields
