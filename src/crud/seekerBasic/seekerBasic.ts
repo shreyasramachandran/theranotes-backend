@@ -255,7 +255,7 @@ export class SeekerBasic {
             problemType: item.SeekerAttributes?.problemType ?? null,
             lastSessionPaymentDone:
               item.SeekerAttributes?.lastSessionPaymentDone === 1 ?? null,
-            isActive: item.isActive?.lastSessionPaymentDone === 'Yes' ?? null,
+            isActive: item.SeekerAttributes?.isActive === IsActive.Yes ?? null,
           };
         });
       }
