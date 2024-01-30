@@ -8,6 +8,12 @@ export class CrudController {
 
   constructor(private readonly crudService: CrudService) {}
 
+  //Gets A seeker Name based on seekerId
+  @Get('get-seeker-name/:seekerId')
+  getSeekerName(@Param('seekerId') seekerId: string): Promise<any> {
+    return this.crudService.getSeekerName(seekerId);
+  }
+
   // Gets all the seekers associated with a clerkUserId
   @Get('get-all-seekers/:clerkUserId')
   getAllSeekers(@Param('clerkUserId') clerkUserId: string): Promise<any> {

@@ -32,16 +32,16 @@ export class SeekerBasic {
         referralSourcePlatform: data.seekerData?.platform ?? null,
         initialCommentsByTherapist: data.seekerData?.comments ?? null,
         IntakeInformation: {
-          name: data.seekerData?.name ?? null
+          name: data.seekerData?.name ?? null,
         },
         BasicDemographicDetails: {
           email: data.seekerData?.email ?? null,
-          contactNumber: data.seekerData?.number ?? null
+          contactNumber: data.seekerData?.number ?? null,
         },
         SeekerAttributes: {
-          isActive: IsActive.Yes
-        }
-      }
+          isActive: IsActive.Yes,
+        },
+      };
 
       return this.prisma.seekers.create({
         data: {
@@ -54,7 +54,7 @@ export class SeekerBasic {
             transformedData.initialCommentsByTherapist,
           // ... other seeker fields
           SeekerAttributes: {
-            create: transformedData.SeekerAttributes
+            create: transformedData.SeekerAttributes,
           },
           IntakeInformation: {
             create: transformedData.IntakeInformation, // Object with intakeInformation fields
@@ -148,8 +148,8 @@ export class SeekerBasic {
           mediumOfTherapy: data.updatedSeekerData?.medium ?? null,
           intakeClinician: data.updatedSeekerData?.intakeClinician ?? null,
           keyTherapist: data.updatedSeekerData?.keyTherapist ?? null,
-        }
-      }
+        },
+      };
 
       const updatedSeeker = await this.prisma.seekers.update({
         where: { id: data.seekerId },
@@ -157,15 +157,13 @@ export class SeekerBasic {
           IntakeInformation: {
             update: {
               statusOfInformedConsent:
-                transformedData.IntakeInformation
-                  .statusOfInformedConsent,
+                transformedData.IntakeInformation.statusOfInformedConsent,
               currentFees: transformedData.IntakeInformation.currentFees,
               mediumOfTherapy:
                 transformedData.IntakeInformation.mediumOfTherapy,
               intakeClinician:
                 transformedData.IntakeInformation.intakeClinician,
-              keyTherapist:
-                transformedData.IntakeInformation.keyTherapist,
+              keyTherapist: transformedData.IntakeInformation.keyTherapist,
             },
           },
         },
@@ -213,7 +211,7 @@ export class SeekerBasic {
           IntakeInformation: {
             select: {
               currentFees: true,
-              name: true
+              name: true,
             },
           },
           BasicDemographicDetails: {
@@ -240,7 +238,7 @@ export class SeekerBasic {
 
       // Transform the data to be sent to frontend
       function transformData(sourceArray: any): InterfaceData[] {
-        return sourceArray.map((item, index) => {
+        return sourceArray.map((item) => {
           return {
             pid: item.id, // assuming id is convertible to number
             patientName: item.IntakeInformation?.name ?? null,
@@ -320,6 +318,36 @@ export class SeekerBasic {
       this.logger.error('Error getting Seeker Cohort Cards', error.stack);
 
       throw error;
+    }
+  }
+
+  async getSeekerName(seekerId: string): Promise<any> {
+    try {
+      const seekerName = await this.prisma.intakeInformation.findUnique({
+        where: {
+          seekerId: seekerId,
+        },
+        select: {
+          name: true,
+        },
+      });
+
+      interface InterfaceData {
+        //if we want more than seekerName add 'em here
+        seekerName: string;
+      }
+
+      function transformData(seekerName: string): InterfaceData {
+        return {
+          seekerName: seekerName,
+        };
+      }
+
+      const transformedSeekerData = transformData(seekerName.name);
+      this.logger.log('Getting Seeker Name:' + transformedSeekerData);
+      return transformedSeekerData;
+    } catch (error) {
+      this.logger.error('Error ');
     }
   }
 }
