@@ -38,3 +38,9 @@ lerna-debug.log*
 
 # evn 
 .env
+
+# 
+/etc
+
+# secrets
+/secrets

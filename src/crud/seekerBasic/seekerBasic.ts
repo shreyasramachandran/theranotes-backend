@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
+import { IsActive } from '@prisma/client';
 import { LoggerService } from 'src/logger.service';
 
 export class SeekerBasic {
@@ -36,6 +37,9 @@ export class SeekerBasic {
         BasicDemographicDetails: {
           email: data.seekerData?.email ?? null,
           contactNumber: data.seekerData?.number ?? null
+        },
+        SeekerAttributes: {
+          isActive: IsActive.Yes
         }
       }
 
@@ -50,7 +54,7 @@ export class SeekerBasic {
             transformedData.initialCommentsByTherapist,
           // ... other seeker fields
           SeekerAttributes: {
-            create: {}, // Object with seekerAttributes fields. Is empty
+            create: transformedData.SeekerAttributes
           },
           IntakeInformation: {
             create: transformedData.IntakeInformation, // Object with intakeInformation fields
@@ -209,6 +213,7 @@ export class SeekerBasic {
           IntakeInformation: {
             select: {
               currentFees: true,
+              name: true
             },
           },
           BasicDemographicDetails: {
@@ -238,19 +243,19 @@ export class SeekerBasic {
         return sourceArray.map((item, index) => {
           return {
             pid: item.id, // assuming id is convertible to number
-            patientName: `Patient ${index + 1}`, // Placeholder, as the real name is not in the source
+            patientName: item.IntakeInformation?.name ?? null,
             sessionsDone: item.SeekerAttributes?.numberOfSessionsDone ?? null,
             nextSessionScheduled:
               item.SeekerAttributes?.nextSessionScheduled === 1 ?? null,
-            fees: 100, // Placeholder value
+            fees: item.IntakeInformation?.currentFees ?? null, // Placeholder value
             preferredDayAndTime:
               item.SeekerAttributes?.preferredDayAndTime ?? null,
             therapist: item.therapistId,
-            contactNo: '123-456-7890', // Placeholder value
+            contactNo: item.BasicDemographicDetails?.contactNumber ?? null, // Placeholder value
             problemType: item.SeekerAttributes?.problemType ?? null,
             lastSessionPaymentDone:
               item.SeekerAttributes?.lastSessionPaymentDone === 1 ?? null,
-            isActive: item.isActive?.lastSessionPaymentDone === 'Yes' ?? null,
+            isActive: item.SeekerAttributes?.isActive === IsActive.Yes ?? null,
           };
         });
       }
