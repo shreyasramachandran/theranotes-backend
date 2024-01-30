@@ -24,25 +24,46 @@ export class SeekerProgress {
         },
       });
 
+      const seekerName = await this.prisma.intakeInformation.findUnique({
+        where: {
+          seekerId: seekerId,
+        },
+        select: {
+          name: true,
+        },
+      });
+
       interface InterfaceData {
-        seekerProgressId: string;
-        progressSubject: string;
-        progressBody: string;
-        createdAt: string;
+        seekerName: string; // Adding seekerName property
+        seekerProgress: {
+          seekerProgressId: string;
+          progressSubject: string;
+          progressBody: string;
+          createdAt: string;
+        }[];
       }
 
       // Transform the data to be sent to frontend
-      function transformData(sourceArray: any): InterfaceData[] {
-        return sourceArray.map((item) => ({
-          seekerProgressId: item.id,
-          progressSubject: item.progressSubject,
-          progressBody: item.progressBody,
-          time: item.createdAt,
-        }));
+      function transformData(
+        seekerName: string,
+        sourceArray: any,
+      ): InterfaceData {
+        return {
+          seekerName: seekerName,
+          seekerProgress: sourceArray.map((item) => ({
+            seekerProgressId: item.id,
+            progressSubject: item.progressSubject,
+            progressBody: item.progressBody,
+            createdAt: item.createdAt,
+          })),
+        };
       }
-      const transformedSeekerProgress = transformData(seekerProgressDetails);
-      this.logger.log('Getting Seeker Progress');
 
+      const transformedSeekerProgress = transformData(
+        seekerName.name,
+        seekerProgressDetails,
+      );
+      this.logger.log('Getting Seeker Progress');
       return transformedSeekerProgress;
     } catch (error) {
       this.logger.error('Error getting Seeker Progress', error.stack);
