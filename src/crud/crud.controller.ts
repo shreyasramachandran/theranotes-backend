@@ -6,7 +6,7 @@ import { CrudService } from './crud.service';
 export class CrudController {
   private readonly logger = new Logger(CrudController.name);
 
-  constructor(private readonly crudService: CrudService) {}
+  constructor(private readonly crudService: CrudService) { }
 
   //Gets A seeker Name based on seekerId
   @Get('get-seeker-name/:seekerId')
@@ -104,6 +104,16 @@ export class CrudController {
     return this.crudService.updateExistingSeekerAndClinicalInformation(
       createData,
     );
+  }
+
+  // Function to create a new seeker and associated clinical history
+  @Post('create-bulk-new-seeker-and-clinical-history/:clerkUserId')
+  createBulkNewSeekerAndClinicalHistory(
+    @Param('clerkUserId') clerkUserId: string,
+    @Body() seekerData: any,
+  ): Promise<any> {
+    const createData = { seekerData, clerkUserId };
+    return this.crudService.createBulkNewSeekerAndClinicalHistory(createData);
   }
 
   /*****

@@ -138,7 +138,7 @@ export class BasicDemographicDetails {
         },
         BasicDemographicDetails: {
           age: Number(params.seekerData?.age) ?? null,
-          dateOfBirth: new Date(params.seekerData?.dob).toISOString() ?? null,
+          dateOfBirth: params.seekerData?.dob ?? null,
           preferredPronoun: params.seekerData?.preferredPronoun ?? null,
           contactNumber: params.seekerData?.contactNum ?? null,
           email: params.seekerData?.email ?? null,

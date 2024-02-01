@@ -181,6 +181,168 @@ export class SeekerBasic {
     }
   }
 
+  async createBulkNewSeekerAndClinicalHistory(data: {
+    clerkUserId: string;
+    seekerData: any;
+  }): Promise<any> {
+
+    try {
+      // Fetch the session to get the associated user
+      const therapist = await this.prisma.therapists.findFirst({
+        where: { clerkUserId: data.clerkUserId },
+      });
+      if (!therapist) {
+        this.logger.warn('Therapist not found ');
+        return {};
+      }
+
+      this.logger.log('Creating Bulk New Seeker & Clinical History');
+
+      type InputRecord = { [key: string]: string };
+      type OutputRecord = { [key: string]: any };
+
+      // Mapping of old keys to new nested keys
+      const keyMapping: { [key: string]: string } = {
+        Name: "IntakeInformation.name",
+        Contact: "BasicDemographicDetails.contactNumber",
+        Email: "BasicDemographicDetails.email",
+        Address: "BasicDemographicDetails.currentAddress",
+        'Enquiry for': "Seekers.enquiryFor",
+        'Expected Help': "SeekerAttributes.modeOfSession",
+        'Refered by/Heard from': "Seekers.referredBy",
+        Information: "Seekers.initialCommentsByTherapist",
+        'Reffered to': "Seekers.referredTo",
+        fees: "IntakeInformation.currentFees",
+        'Preferred day and time': "SeekerAttributes.preferredDayAndTime",
+      };
+
+      function transformInputList(inputList: InputRecord[]): OutputRecord[] {
+        return inputList.map(item => {
+          const outputItem: OutputRecord = {};
+
+          Object.entries(item).forEach(([key, value]) => {
+            const newKeyPath = keyMapping[key];
+            if (!newKeyPath) return; // Skip if no mapping is found
+
+            const keys = newKeyPath.split('.');
+            let currentLevel = outputItem;
+
+            // Iterate through all but the last key, creating nested objects as necessary
+            keys.slice(0, -1).forEach(k => {
+              if (!currentLevel[k]) currentLevel[k] = {}; // Create a new object if necessary
+              currentLevel = currentLevel[k];
+            });
+
+            // Set the value at the last key
+            currentLevel[keys[keys.length - 1]] = value;
+          });
+
+          return outputItem;
+        });
+      }
+
+      const transformedDataList = transformInputList(data.seekerData.seekerData);
+
+      const creationPromises = transformedDataList.map(transformedData => {
+        return this.prisma.seekers.create({
+          data: {
+            therapist: {
+              connect: { id: therapist.id },
+            },
+            // Add Seeker data
+            initialCommentsByTherapist:
+              transformedData.Seekers.initialCommentsByTherapist,
+            referredBy: transformedData.Seekers.referredBy,
+            referredTo: transformedData.Seekers.referredTo,
+            enquiryFor: transformedData.Seekers.enquiryFor,
+            // ... other seeker fields
+            SeekerAttributes: {
+              create: transformedData.SeekerAttributes,
+            },
+            IntakeInformation: {
+              create: transformedData.IntakeInformation, // Object with intakeInformation fields
+            },
+            BasicDemographicDetails: {
+              create: transformedData.BasicDemographicDetails, // Object with basicDemographicDetails fields
+            },
+            PresentingProblem: {
+              create: {
+                EpisodicDocumentation: {
+                  create: {},
+                },
+                HistoryOfPresentProblem: {
+                  create: {},
+                },
+              },
+            },
+            EmergencyContact: {
+              create: {},
+            },
+            FamilyHistory: {
+              create: {},
+            },
+            Substances: {
+              create: {},
+            },
+            PreMorbidPersonality: {
+              create: {},
+            },
+            SexualHistory: {
+              create: {},
+            },
+            PersonalHistory: {
+              create: {},
+            },
+            PeersAndSocialHistory: {
+              create: {},
+            },
+            WorkAndCareer: {
+              create: {},
+            },
+            ProvisionalDiagnosis: {
+              create: {},
+            },
+            DifferentialDiagnosis: {
+              create: {},
+            },
+            MentalStatusExamination: {
+              create: {},
+            },
+          },
+          include: {
+            IntakeInformation: true,
+            SeekerAttributes: true,
+            BasicDemographicDetails: true,
+            PresentingProblem: {
+              include: {
+                EpisodicDocumentation: true,
+                HistoryOfPresentProblem: true,
+              },
+            },
+            EmergencyContact: true,
+            FamilyHistory: true,
+            Substances: true,
+            PreMorbidPersonality: true,
+            SexualHistory: true,
+            PersonalHistory: true,
+            PeersAndSocialHistory: true,
+            WorkAndCareer: true,
+            ProvisionalDiagnosis: true,
+            DifferentialDiagnosis: true,
+            MentalStatusExamination: true,
+          },
+        });
+      });
+
+      const createdSeekerRecords = await Promise.all(creationPromises);
+      console.log(createdSeekerRecords);
+      return createdSeekerRecords
+    } catch (error) {
+      this.logger.error('Error creating new Seeker', error.stack);
+      throw error;
+    }
+  }
+
   async getAllSeekers(clerkUserId: string): Promise<any> {
     // Fetch the session to get the associated user
     try {

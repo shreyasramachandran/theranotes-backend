@@ -81,6 +81,14 @@ export class CrudService {
     return this.seekerBasic.updateExistingSeekerAndClinicalInformation(data);
   }
 
+  // Function to create bulk new seeker and associated clinical history. All the clinical history tables would be empty
+  async createBulkNewSeekerAndClinicalHistory(data: {
+    clerkUserId: string;
+    seekerData: any;
+  }): Promise<any> {
+    return this.seekerBasic.createBulkNewSeekerAndClinicalHistory(data);
+  }
+
   async getAllSeekers(clerkUserId: string): Promise<any> {
     return this.seekerBasic.getAllSeekers(clerkUserId);
   }

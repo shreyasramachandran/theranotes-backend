@@ -97,7 +97,7 @@ export class SubstanceUsage {
       const transformedUpdatedData = {
         Substances: {
           introductionToSubstances:
-            new Date(params.seekerData?.introductionToSubstance).toISOString() ?? null,
+            params.seekerData?.introductionToSubstance ?? null,
           substancesUsed: params.seekerData?.substanceUsed ?? null,
           frequency: params.seekerData?.frequency ?? null,
           quantity: params.seekerData?.quantity ?? null,

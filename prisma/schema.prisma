@@ -34,8 +34,10 @@ model Therapists {
 model Seekers {
   id                         String                   @id @default(uuid())
   referredBy                 String?
+  referredTo                 String?
   referralSourcePlatform     ReferralSourcePlatform?
-  initialCommentsByTherapist String
+  initialCommentsByTherapist String?                  @db.LongText
+  enquiryFor                 String?
   location                   String?
   therapistId                String?
   therapist                  Therapists?              @relation(fields: [therapistId], references: [id])
@@ -62,18 +64,18 @@ model Seekers {
 }
 
 model SeekerAttributes {
-  id                     String         @id @default(uuid())
+  id                     String       @id @default(uuid())
   cohortType             CohortType?
   stage                  String?
   numberOfSessionsDone   Int?
   nextSessionScheduled   Int?
-  preferredDayAndTime    DateTime?
-  modeOfSession          ModeOfSession?
+  preferredDayAndTime    String?
+  modeOfSession          String?
   lastSessionPaymentDone Int?
   problemType            problemType?
   isActive               IsActive?
-  seekerId               String         @unique
-  seeker                 Seekers        @relation(fields: [seekerId], references: [id])
+  seekerId               String       @unique
+  seeker                 Seekers      @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
@@ -128,10 +130,10 @@ model SeekerProgressComments {
 }
 
 model IntakeInformation {
-  id                      String    @id @default(uuid())
+  id                      String  @id @default(uuid())
   name                    String?
   statusOfInformedConsent String?
-  timestampOfIntake       DateTime?
+  timestampOfIntake       String?
   currentFees             String?
   slidingScale            String?
   mediumOfTherapy         String?
@@ -139,8 +141,8 @@ model IntakeInformation {
   intakeClinician         String?
   keyTherapist            String?
   psychiatrist            String?
-  seekerId                String    @unique
-  seeker                  Seekers   @relation(fields: [seekerId], references: [id])
+  seekerId                String  @unique
+  seeker                  Seekers @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
@@ -148,7 +150,7 @@ model IntakeInformation {
 model BasicDemographicDetails {
   id                 String              @id @default(uuid())
   age                Int?
-  dateOfBirth        DateTime?
+  dateOfBirth        String?
   sexAssignedAtBirth SexAssignedAtBirth?
   identifiedGender   String?
   preferredPronoun   String?
@@ -399,8 +401,8 @@ model OldAge {
 }
 
 model SexualHistory {
-  id                             String    @id @default(uuid())
-  onsetOfPuberty                 DateTime?
+  id                             String  @id @default(uuid())
+  onsetOfPuberty                 String?
   sexualIdentity                 String?
   genderIdentity                 String?
   firstSelfExplorationExperience String?
@@ -409,21 +411,21 @@ model SexualHistory {
   sexualDiseases                 String?
   currentSexualFunctioning       String?
   sexualAbuse                    String?
-  seekerId                       String    @unique
-  seeker                         Seekers   @relation(fields: [seekerId], references: [id])
+  seekerId                       String  @unique
+  seeker                         Seekers @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }
 
 model Substances {
-  id                       String    @id @default(uuid())
-  introductionToSubstances DateTime?
+  id                       String  @id @default(uuid())
+  introductionToSubstances String?
   substancesUsed           String?
   frequency                String?
   quantity                 String?
   reason                   String?
-  seekerId                 String    @unique
-  seeker                   Seekers   @relation(fields: [seekerId], references: [id])
+  seekerId                 String  @unique
+  seeker                   Seekers @relation(fields: [seekerId], references: [id])
 
   @@index([seekerId])
 }

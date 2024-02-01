@@ -112,7 +112,7 @@ export class SexualHistory {
     try {
       const transformedUpdatedData = {
         SexualHistory: {
-          onsetOfPuberty: new Date(params.seekerData?.onsetOfPuberty).toISOString() ?? null,
+          onsetOfPuberty: params.seekerData?.onsetOfPuberty ?? null,
           genderIdentity: params.seekerData?.genderIdentity ?? null,
           arousalAndOrgasmicFantasy: params.seekerData?.fantasy ?? null,
           firstSexualExperience:
