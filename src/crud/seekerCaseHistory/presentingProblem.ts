@@ -122,7 +122,7 @@ export class PresentingProblem {
           perpetuatingFactors: item.HistoryOfPresentProblem.perpetuatingFactors,
           protectiveFactors: item.HistoryOfPresentProblem.protectiveFactors,
           summary: item.HistoryOfPresentProblem.summary,
-          yourComments: 'This one is a fine specimin',
+          yourComments: item.EpisodicDocumentation.yourComments,
         }));
       }
 
