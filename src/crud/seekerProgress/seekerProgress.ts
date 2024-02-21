@@ -75,6 +75,7 @@ export class SeekerProgress {
     seekerId: string;
     progressSubject: string;
     progressBody: string;
+    progressReflections: string;
   }): Promise<any> {
     try {
       this.logger.log('Creating Seeker Progress');
@@ -83,6 +84,7 @@ export class SeekerProgress {
         data: {
           progressSubject: data.progressSubject,
           progressBody: data.progressBody,
+          progressReflections: data.progressReflections,
           seeker: {
             // Assuming Seeker is the relation field name in SeekerProgress model
             connect: { id: data.seekerId },

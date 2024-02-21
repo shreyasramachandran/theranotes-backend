@@ -101,6 +101,7 @@ export class CrudService {
     seekerId: string;
     progressSubject: string;
     progressBody: string;
+    progressReflections: string;
   }): Promise<any> {
     return this.seekerProgress.createSeekerProgress(data);
   }

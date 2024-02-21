@@ -110,6 +110,7 @@ model SeekerProgress {
   id                     String                   @id @default(uuid())
   progressSubject        String
   progressBody           String
+  progressReflections    String?
   createdAt              DateTime                 @default(now())
   seekerId               String
   seeker                 Seekers                  @relation(fields: [seekerId], references: [id])
