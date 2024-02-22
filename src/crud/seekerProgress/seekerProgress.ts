@@ -20,6 +20,7 @@ export class SeekerProgress {
           id: true,
           progressSubject: true,
           progressBody: true,
+          progressReflections: true,
           createdAt: true,
         },
       });
@@ -39,6 +40,7 @@ export class SeekerProgress {
           seekerProgressId: string;
           progressSubject: string;
           progressBody: string;
+          progressReflections: string | null;
           createdAt: string;
         }[];
       }
@@ -54,6 +56,7 @@ export class SeekerProgress {
             seekerProgressId: item.id,
             progressSubject: item.progressSubject,
             progressBody: item.progressBody,
+            progressReflections: item.progressReflections,
             createdAt: item.createdAt,
           })),
         };
@@ -75,7 +78,7 @@ export class SeekerProgress {
     seekerId: string;
     progressSubject: string;
     progressBody: string;
-    progressReflections: string;
+    progressReflections: string | null;
   }): Promise<any> {
     try {
       this.logger.log('Creating Seeker Progress');

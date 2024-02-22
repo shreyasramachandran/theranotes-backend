@@ -38,7 +38,7 @@ export class CrudController {
   @Post('create-seeker-progress/:seekerId')
   createSeekerProgress(
     @Param('seekerId') seekerId: string,
-    @Body() data: { progressSubject: string; progressBody: string, progressReflections: string },
+    @Body() data: { progressSubject: string; progressBody: string, progressReflections: string | null},
   ): Promise<any> {
     const createData = { ...data, seekerId };
     return this.crudService.createSeekerProgress(createData);
